@@ -5,3 +5,5 @@ const config = {
     backgroundColor: '#1a1a2e',
     scene: {}
 };
+
+const game = new Phaser.Game(config);
