@@ -3,9 +3,11 @@ class Level1 extends Phaser.Scene {
         super({ key: 'Level1' });
     }
     create(){
-        this.add.rectangle(400, 300, 800, 600, 0x2d4a22);
+        this.worldWidth = 1600;
+        this.worldHeight = 1200;
+        this.add.rectangle(this.worldWidth / 2, this.worldHeight / 2, this.worldWidth, this.worldHeight, 0x2d4a22);
 
-        this.player = this.add.rectangle(400, 300, 32, 32, 0xff69b4);
+        this.player = this.add.rectangle(800, 600, 32, 32, 0xff69b4);
         this.physics.add.existing(this.player);
         this.player.body.setCollideWorldBounds(true);
 
@@ -17,6 +19,12 @@ class Level1 extends Phaser.Scene {
             right: Phaser.Input.Keyboard.KeyCodes.D,
             }
         );
+
+        
+        this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
+        this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+        this.cameras.main.setZoom(1.5);
+        this.physics.world.setBounds(0, 0, this.worldWidth, this.worldHeight);
         
     }
     update() {
