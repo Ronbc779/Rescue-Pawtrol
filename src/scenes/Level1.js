@@ -33,6 +33,8 @@ class Level1 extends Phaser.Scene {
         this.anims.create({ key: 'walk_up_right', frames: this.anims.generateFrameNumbers('cat_walk_up_right', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
         this.anims.create({ key: 'walk_down_left', frames: this.anims.generateFrameNumbers('cat_walk_down_left', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
         this.anims.create({ key: 'walk_down_right', frames: this.anims.generateFrameNumbers('cat_walk_down_right', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
+
+        this.spawnCats(5);
         
     }
     update() {
@@ -86,5 +88,29 @@ class Level1 extends Phaser.Scene {
         }
 
         BODY.velocity.normalize().scale(SPEED);
+
+        if (this.carriedCat) {
+            this.carriedCat.setPosition(this.player.x + 20, this.player.y -10);
+        }
+    }
+
+    spawnCats() {
+        this.catsToRescue = this.physics.add.staticGroup();
+        for (let i = 0; i < CountQueuingStrategy; i++) {
+            const x = Phaser.Math.Between(200, this.worldWidth - 200);
+            const y = Phaser.Math.Between(200, this.worldHeight - 200);
+            const cat = this.add.rectangle(x, y, 24, 24, 0xffd57);
+            this.physices.add.existing(cat, true);
+            this.catsToRescue.add(cat);
+
+        }
+    }
+
+    pickUpCat(player, cat){
+        if  (this.carriedCat) {
+            cat.setActive(false);
+            cat.body.enablle(false);
+            this.carriedCat = this.add.rectangle(0, 0, 18, 18, 0xffdd57);
+        }
     }
 }
