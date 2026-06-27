@@ -24,23 +24,67 @@ class Level1 extends Phaser.Scene {
         this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
         this.cameras.main.setZoom(1.5);
         this.physics.world.setBounds(0, 0, this.worldWidth, this.worldHeight);
+
+        this.anims.create({ key: 'walk_up', frames: this.anims.generateFrameNumbers('cat_walk_up', { start: 0, end: 3 }), frameRate: 8, repeat: -1 });
+        this.anims.create({ key: 'walk_down', frames: this.anims.generateFrameNumbers('cat_walk_down', { start: 0, end: 3 }), frameRate: 8, repeat: -1 });
+        this.anims.create({ key: 'walk_left', frames: this.anims.generateFrameNumbers('cat_walk_left', { start: 0, end: 7 }), frameRate: 10, repeat: -1 });
+        this.anims.create({ key: 'walk_right', frames: this.anims.generateFrameNumbers('cat_walk_right', { start: 0, end: 7 }), frameRate: 10, repeat: -1 });
+        this.anims.create({ key: 'walk_up_left', frames: this.anims.generateFrameNumbers('cat_walk_up_left', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
+        this.anims.create({ key: 'walk_up_right', frames: this.anims.generateFrameNumbers('cat_walk_up_right', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
+        this.anims.create({ key: 'walk_down_left', frames: this.anims.generateFrameNumbers('cat_walk_down_left', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
+        this.anims.create({ key: 'walk_down_right', frames: this.anims.generateFrameNumbers('cat_walk_down_right', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
         
     }
     update() {
         const SPEED = 160;
-        this.player.body.setVelocityX(0);
-        this.player.body.setVelocityY(0);
+        const BODY = this.player.body
+        BODY.setVelocity(0);
 
-        if (this.cursors.left.isDown || this.wasd.left.isDown){ 
-            this.player.body.setVelocityX(-SPEED);
+        const LEFT  = this.cursors.left.isDown  || this.wasd.left.isDown;
+        const RIGHT = this.cursors.right.isDown || this.wasd.right.isDown;
+        const UP    = this.cursors.up.isDown    || this.wasd.up.isDown;
+        const DOWN  = this.cursors.down.isDown  || this.wasd.down.isDown;
+
+        let moving = false;
+
+        if (UP && LEFT) {
+            BODY.setVelocity(-SPEED, -SPEED);
+            this.player.anims.play('walk_up_left', true);
+            moving = true;
+        } else if (UP && RIGHT) {
+            BODY.setVelocity(SPEED, -SPEED);
+            this.player.anims.play('walk_up_right', true);
+            moving = true;
+        } else if (DOWN && LEFT) {
+            BODY.setVelocity(-SPEED, SPEED);
+            this.player.anims.play('walk_down_left', true);
+            moving = true;
+        } else if (DOWN && RIGHT) {
+            BODY.setVelocity(SPEED, SPEED);
+            this.player.anims.play('walk_down_right', true);
+            moving = true;
+        } else if (LEFT) {
+            BODY.setVelocityX(-SPEED);
+            this.player.anims.play('walk_left', true);
+            moving = true;
+        } else if (RIGHT) {
+            BODY.setVelocityX(SPEED);
+            this.player.anims.play('walk_right', true);
+            moving = true;
+        } else if (UP) {
+            BODY.setVelocityY(-SPEED);
+            this.player.anims.play('walk_up', true);
+            moving = true;
+        } else if (DOWN) {
+            BODY.setVelocityY(SPEED);
+            this.player.anims.play('walk_down', true);
+            moving = true;
         }
-        else if (this.cursors.right.isDown || this.wasd.right.isDown){
-            this.player.body.setVelocityX(SPEED);
-        } 
-        if (this.cursors.up.isDown || this.wasd.up.isDown) {
-            this.player.body.setVelocityY(-SPEED);
-        } else if (this.cursors.down.isDown || this.wasd.down.isDown) {
-            this.player.body.setVelocityY(SPEED);
+
+        if (!moving) {
+            this.player.anims.stop();
         }
+
+        BODY.velocity.normalize().scale(SPEED);
     }
 }
