@@ -7,8 +7,7 @@ class Level1 extends Phaser.Scene {
         this.worldHeight = 1200;
         this.add.rectangle(this.worldWidth / 2, this.worldHeight / 2, this.worldWidth, this.worldHeight, 0x2d4a22);
 
-        this.player = this.add.rectangle(800, 600, 32, 32, 0xff69b4);
-        this.physics.add.existing(this.player);
+        this.player = this.physics.add.sprite(400, 300, 'cat_walk_down');
         this.player.body.setCollideWorldBounds(true);
 
         this.cursors = this.input.keyboard.createCursorKeys();
