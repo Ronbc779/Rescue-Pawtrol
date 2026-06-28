@@ -22,7 +22,7 @@ class Level1 extends Phaser.Scene {
         
         this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
         this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
-        this.cameras.main.setZoom(1.5);
+        this.cameras.main.setZoom(1);
         this.physics.world.setBounds(0, 0, this.worldWidth, this.worldHeight);
 
         this.anims.create({ key: 'walk_up', frames: this.anims.generateFrameNumbers('cat_walk_up', { start: 0, end: 3 }), frameRate: 8, repeat: -1 });
@@ -34,7 +34,18 @@ class Level1 extends Phaser.Scene {
         this.anims.create({ key: 'walk_down_left', frames: this.anims.generateFrameNumbers('cat_walk_down_left', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
         this.anims.create({ key: 'walk_down_right', frames: this.anims.generateFrameNumbers('cat_walk_down_right', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
 
-        this.spawnCats(5);
+        this.catsToRescue = this.physics.add.staticGroup();
+        this.spawnCats(10);
+        this.carriedCat = null;
+        this.physics.add.overlap(
+            this.player,
+            this.catsToRescue,
+            this.pickUpCat,
+            null,
+            this
+        );
+
+        
         
     }
     update() {
@@ -94,23 +105,23 @@ class Level1 extends Phaser.Scene {
         }
     }
 
-    spawnCats() {
-        this.catsToRescue = this.physics.add.staticGroup();
-        for (let i = 0; i < CountQueuingStrategy; i++) {
+    spawnCats(count) {
+        for (let i = 0; i < count; i++) {
+            console.log("Cat");
             const x = Phaser.Math.Between(200, this.worldWidth - 200);
             const y = Phaser.Math.Between(200, this.worldHeight - 200);
-            const cat = this.add.rectangle(x, y, 24, 24, 0xffd57);
-            this.physices.add.existing(cat, true);
+            const cat = this.add.rectangle(x, y, 24, 24, 0xffdd57);
+            this.physics.add.existing(cat, true);
             this.catsToRescue.add(cat);
 
         }
     }
 
     pickUpCat(player, cat){
-        if  (this.carriedCat) {
-            cat.setActive(false);
-            cat.body.enablle(false);
-            this.carriedCat = this.add.rectangle(0, 0, 18, 18, 0xffdd57);
-        }
+        if  (this.carriedCat) return;
+
+        cat.setActive(false).setVisible(false);
+        cat.body.enable = false;
+        this.carriedCat = this.add.rectangle(0, 0, 18, 18, 0xffdd57);
     }
 }
