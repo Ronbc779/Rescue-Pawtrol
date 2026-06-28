@@ -9,6 +9,7 @@ class Level1 extends Phaser.Scene {
 
         this.player = this.physics.add.sprite(400, 300, 'cat_walk_down');
         this.player.body.setCollideWorldBounds(true);
+        this.player.rescuedCats = 0;
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys({
@@ -53,7 +54,7 @@ class Level1 extends Phaser.Scene {
         this.physics.add.existing(this.safeZone, true);
         this.safeZone.body.setSize(40, 40);
         this.safeZone.body.setOffset(20, 20);
-        
+
         this.physics.add.collider(this.player, this.safeZone);
         this.physics.add.overlap(
             this.player,
@@ -63,10 +64,30 @@ class Level1 extends Phaser.Scene {
             this
         );
 
+        this.enemies = this.physics.add.group();
+        this.spawnEnemies(20);
+        this.physics.add.collider(this.enemies, this.enemies);
+
+        this.time.addEvent({
+            delay: 2000,
+            callback: this.moveEnemies,
+            callbackScope: this,
+            loop: true
+        });
+
+        this.physics.add.overlap(
+            this.player,
+            this.enemies,
+            this.hitByEnemy,
+            null,
+            this
+        );
+
         
         
     }
     update() {
+        if (this.gameOver) return;
         const SPEED = 160;
         const BODY = this.player.body
         BODY.setVelocity(0);
@@ -125,7 +146,6 @@ class Level1 extends Phaser.Scene {
 
     spawnCats(count) {
         for (let i = 0; i < count; i++) {
-            console.log("Cat");
             const x = Phaser.Math.Between(200, this.worldWidth - 200);
             const y = Phaser.Math.Between(200, this.worldHeight - 200);
             const cat = this.add.rectangle(x, y, 24, 24, 0xffdd57);
@@ -148,5 +168,76 @@ class Level1 extends Phaser.Scene {
         this.carriedCat.destroy();
         this.carriedCat = null;
         this.player.rescuedCats++;
+    }
+
+    spawnEnemies(count) {
+        for (let i = 0; i < count; i++) {
+            console.log("Cat");
+            const x = Phaser.Math.Between(400, this.worldWidth - 100);
+            const y = Phaser.Math.Between(400, this.worldHeight - 100);
+            const ENEMY = this.add.rectangle(x, y, 32, 32, 0xff3333);
+            this.physics.add.existing(ENEMY)
+            ENEMY.baseWidth = ENEMY.width;
+            ENEMY.baseHeight = ENEMY.height;
+            ENEMY.body.setSize(ENEMY.baseWidth, ENEMY.baseHeight);
+            ENEMY.body.setCollideWorldBounds(true);
+            ENEMY.body.setBounce(1);
+            this.enemies.add(ENEMY);
+        }
+    }
+
+    hitByEnemy() {
+        if (this.gameOver) return;
+        this.gameOver = true;
+
+        this.player.body.setVelocity(0);
+        this.player.anims.stop();
+
+        // Freeze all enemies too
+        this.enemies.getChildren().forEach(ENEMY => {
+            ENEMY.body.setVelocity(0);
+        });
+
+        this.add.rectangle(400, 300, 800, 600, 0x000000, 0.7)
+        .setScrollFactor(0).setDepth(20);
+
+        this.add.text(400, 260, 'GAME OVER', {
+            fontSize: '48px', color: '#ff3333', fontStyle: 'bold'
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(21);
+
+        this.add.text(400, 330, `Rescued ${this.player.rescuedCats} cats`, {
+            fontSize: '24px', color: '#ffffff'
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(21);
+
+        this.add.text(400, 390, 'Press R to restart', {
+            fontSize: '18px', color: '#aaaaaa'
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(21);
+
+        this.input.keyboard.once('keydown-R', () => {
+            this.gameOver = false;
+            this.scene.restart();
+        });
+    }
+
+    moveEnemies() {
+        if (this.gameOver) return;
+        this.enemies.getChildren().forEach(ENEMY => {
+            const DIRECTIONS = [
+                { vx: 80, vy: 0, angle: 90, horizontal: true },
+                { vx: -80, vy: 0, angle: -90, horizontal: true },
+                { vx: 0, vy: 80, angle: 180, horizontal: false },
+                { vx: 0, vy: -80, angle: 0, horizontal: false }
+            ];
+            const DIR = Phaser.Utils.Array.GetRandom(DIRECTIONS);
+
+            ENEMY.body.setVelocity(DIR.vx, DIR.vy);
+            ENEMY.setRotation(Phaser.Math.DegToRad(DIR.angle));
+
+            if (DIR.horizontal) {
+                ENEMY.body.setSize(ENEMY.baseHeight, ENEMY.baseWidth);
+            } else {
+                ENEMY.body.setSize(ENEMY.baseWidth, ENEMY.baseHeight);
+            }
+        });
     }
 }
