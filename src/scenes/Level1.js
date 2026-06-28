@@ -45,15 +45,15 @@ class Level1 extends Phaser.Scene {
             this
         );
 
-        this.safeZone = this.add.rectangle(100, 100, 80, 80, 0x00ff99, 0.4);
-        this.physics.add.existing(this.safeZone, true);
-        this.safeZone.body.setSize(40, 40);
-        this.safeZone.body.setOffset(20, 20);
-
         this.dropOffZone = this.add.rectangle(100, 140, 90, 50, 0x00ff99, 0.3);
         this.dropOffZone.setStrokeStyle(2, 0x00ff99, 0.8);
         this.physics.add.existing(this.dropOffZone, true);
 
+        this.safeZone = this.add.image(100, 100, 'rescue_center');
+        this.physics.add.existing(this.safeZone, true);
+        this.safeZone.body.setSize(40, 40);
+        this.safeZone.body.setOffset(20, 20);
+        
         this.physics.add.collider(this.player, this.safeZone);
         this.physics.add.overlap(
             this.player,
