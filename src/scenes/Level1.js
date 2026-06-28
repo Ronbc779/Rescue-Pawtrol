@@ -171,15 +171,21 @@ class Level1 extends Phaser.Scene {
     }
 
     spawnEnemies(count) {
+        const CARS = ['taxi_car', 'red_car'];
         for (let i = 0; i < count; i++) {
             console.log("Cat");
             const x = Phaser.Math.Between(400, this.worldWidth - 100);
             const y = Phaser.Math.Between(400, this.worldHeight - 100);
-            const ENEMY = this.add.rectangle(x, y, 32, 32, 0xff3333);
+
+            const randomCar = Phaser.Utils.Array.GetRandom(CARS);
+            const ENEMY = this.add.sprite(x, y, randomCar);
+            ENEMY.setOrigin(0.5, 0.5);
             this.physics.add.existing(ENEMY)
+
             ENEMY.baseWidth = ENEMY.width;
             ENEMY.baseHeight = ENEMY.height;
             ENEMY.body.setSize(ENEMY.baseWidth, ENEMY.baseHeight);
+
             ENEMY.body.setCollideWorldBounds(true);
             ENEMY.body.setBounce(1);
             this.enemies.add(ENEMY);
