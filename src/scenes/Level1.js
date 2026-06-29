@@ -300,7 +300,7 @@ class Level1 extends Phaser.Scene {
     spawnDamageZone(){
         const X = Phaser.Math.Between(150, this.worldWidth - 150);
         const Y = Phaser.Math.Between(150, this.worldHeight - 150);
-        const RADIUS = 60;
+        const RADIUS = 100;
 
         const WARNING = this.add.circle(X, Y, RADIUS, 0xff0000, 0.25);
 
@@ -318,7 +318,7 @@ class Level1 extends Phaser.Scene {
             WARNING.destroy()
             const AOE = this.add.sprite(X, Y, 'explosion');
             this.physics.add.existing(AOE, true);
-            AOE.body.setCircle(100);
+            AOE.body.setCircle(RADIUS);
 
             AOE.anims.play('explosion_start');
 
