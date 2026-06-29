@@ -10,6 +10,8 @@ class Level1 extends Phaser.Scene {
         this.player = this.physics.add.sprite(400, 300, 'cat_walk_down');
         this.player.body.setCollideWorldBounds(true);
         this.player.rescuedCats = 0;
+        this.lowVisibilityActive = false;
+        this.gameOver = false;
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys({
@@ -34,6 +36,35 @@ class Level1 extends Phaser.Scene {
         this.anims.create({ key: 'walk_up_right', frames: this.anims.generateFrameNumbers('cat_walk_up_right', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
         this.anims.create({ key: 'walk_down_left', frames: this.anims.generateFrameNumbers('cat_walk_down_left', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
         this.anims.create({ key: 'walk_down_right', frames: this.anims.generateFrameNumbers('cat_walk_down_right', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
+
+
+        this.anims.create({
+            key: 'explosion_start',
+            frames: this.anims.generateFrameNumbers('explosion', { start: 0, end: 4 }),
+            frameRate: 12,
+            repeat: 0
+        });
+
+        this.anims.create({
+            key: 'explosion_loop',
+            frames: this.anims.generateFrameNumbers('explosion', { start: 5, end: 15 }),
+            frameRate: 12,
+            repeat: -1
+        });
+        
+        this.anims.create({ 
+            key: 'laser_start', 
+            frames: this.anims.generateFrameNumbers('laser', { start: 0, end: 2 }), 
+            frameRate: 10, 
+            repeat: 0 
+        });
+
+        this.anims.create({ 
+            key: 'laser_loop', 
+            frames: this.anims.generateFrameNumbers('laser', { start: 3, end: 6 }), 
+            frameRate: 10, 
+            repeat: -1 
+        });
 
         this.catsToRescue = this.physics.add.staticGroup();
         this.spawnCats(10);
@@ -90,7 +121,19 @@ class Level1 extends Phaser.Scene {
             loop: true
         });
 
-        
+        this.time.addEvent({
+            delay: 2000,
+            callback: this.spawnDustStorm,
+            callbackScope: this,
+            loop: true
+        });
+
+        this.time.addEvent({
+            delay: 3000,
+            callback: this.spawnLaser,
+            callbackScope: this,
+            loop: true
+        });
         
     }
     update() {
@@ -273,10 +316,17 @@ class Level1 extends Phaser.Scene {
 
         this.time.delayedCall(1500, () => {
             WARNING.destroy()
-            const AOE = this.add.circle(X, Y, RADIUS, 0xff0000, 0.5);
+            const AOE = this.add.sprite(X, Y, 'explosion');
             this.physics.add.existing(AOE, true);
-            const AOE_RADIUS = RADIUS * 0.9;
-            AOE.body.setOffset(RADIUS - AOE_RADIUS, RADIUS - AOE_RADIUS);
+            AOE.body.setCircle(100);
+
+            AOE.anims.play('explosion_start');
+
+            this.time.delayedCall(400, () => {
+                if (AOE && AOE.active) {
+                    AOE.anims.play('explosion_loop');
+                }
+            });
 
             const OVERLAP_CHECK = this.physics.add.overlap(
                 this.player,
@@ -291,6 +341,121 @@ class Level1 extends Phaser.Scene {
             this.time.delayedCall(3000, () => {
                 AOE.destroy();
                 this.physics.world.removeCollider(OVERLAP_CHECK);
+            });
+        });
+    }
+
+    spawnDustStorm() {
+        if (this.gameOver) return;
+
+        const X = Phaser.Math.Between(200, this.worldWidth - 200);
+        const Y = Phaser.Math.Between(200, this.worldHeight - 200);
+        const W = 160;
+        const H = 100;
+
+        const dustZone = this.add.rectangle(X, Y, W, H, 0Xc2a878, 0.5);
+        dustZone.setStrokeStyle(2, 0x8a7350, 0.6);
+
+        this.tweens.add({
+            targets: dustZone,
+            alpha: { from: 0.4, to: 0.6 },
+            duration: 500,
+            yoyo: true,
+            repeat: -1
+        });
+
+        this.physics.add.existing(dustZone, false);
+        dustZone.body.setAllowGravity(false);
+
+        const driftAngle = Phaser.Math.Between(0, 360);
+        const driftSpeed = 30;
+        const vx = Math.cos(Phaser.Math.DegToRad(driftAngle)) * driftSpeed;
+        const vy = Math.sin(Phaser.Math.DegToRad(driftAngle)) * driftSpeed;
+        dustZone.body.setVelocity(vx, vy);
+        dustZone.body.setCollideWorldBounds(true);
+        dustZone.body.setBounce(1);
+
+        this.physics.add.overlap(
+        this.player,
+        dustZone,
+        () => {
+            this.triggerLowVisibility();
+        },
+        null,
+        this
+        );
+
+        this.time.delayedCall(12000, () => {
+            dustZone.destroy();
+        });
+    }
+    
+    triggerLowVisibility() {
+        if (this.lowVisibilityActive) return;
+        this.lowVisibilityActive = true;
+
+        const FOG = this.add.rectangle(400, 300, 800, 600, 0x4a3f30)
+        .setAlpha(1)
+        .setScrollFactor(0)
+        .setDepth(1000);
+
+        this.tweens.add({
+            targets: FOG,
+            alpha: 0.75,
+            duration: 200,
+            yoyo: true,
+            hold: 1600,
+            onComplete: () => {
+                FOG.destroy();
+                this.lowVisibilityActive = false;
+            }
+        });
+    }
+
+    spawnLaser() {
+        if (this.gameOver) return;
+
+        const laserY = Phaser.Math.Between(200, this.worldHeight - 200);
+        
+        
+        const indicator = this.add.line(0, 0, 0, laserY, this.worldWidth, laserY, 0xff0000, 0.4);
+        indicator.setOrigin(0, 0);
+        indicator.setLineWidth(2);
+
+      
+        this.tweens.add({
+            targets: indicator,
+            alpha: { from: 0.4, to: 0.9 },
+            duration: 200,
+            yoyo: true,
+            repeat: 2
+        });
+        this.time.delayedCall(1000, () => {
+            indicator.destroy();
+
+            const LASER = this.add.sprite(this.worldWidth / 2, laserY, 'laser');
+            LASER.setDisplaySize(this.worldWidth, LASER.height);
+            this.physics.add.existing(LASER, true);
+            LASER.anims.play('laser_start');
+            this.time.delayedCall(300, () => {
+                if (LASER && LASER.active) {
+                    LASER.anims.play('laser_loop');
+                }
+            });
+
+            const laserOverlap = this.physics.add.overlap(
+                this.player,
+                LASER,
+                () => {
+                    this.hitByEnemy();
+                },
+                null,
+                this
+            );
+
+            this.time.delayedCall(2000, () => {
+                LASER.destroy();
+                this.physics.world.removeCollider(laserOverlap);
             });
         });
     }
