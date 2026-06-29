@@ -83,6 +83,13 @@ class Level1 extends Phaser.Scene {
             this
         );
 
+        this.time.addEvent({
+            delay: 4000,
+            callback: this.spawnDamageZone,
+            callbackScope: this,
+            loop: true
+        });
+
         
         
     }
@@ -244,6 +251,47 @@ class Level1 extends Phaser.Scene {
             } else {
                 ENEMY.body.setSize(ENEMY.baseWidth, ENEMY.baseHeight);
             }
+        });
+    }
+
+    spawnDamageZone(){
+        const X = Phaser.Math.Between(150, this.worldWidth - 150);
+        const Y = Phaser.Math.Between(150, this.worldHeight - 150);
+        const RADIUS = 60;
+
+        const WARNING = this.add.circle(X, Y, RADIUS, 0xff0000, 0.25);
+
+        WARNING.setStrokeStyle(2, 0xff0000, 0.8);
+
+        this.tweens.add({
+            targets: WARNING,
+            alpha: {from: 0.25, to: 0.5},
+            duration: 300,
+            yoyo: true,
+            repeat: 4
+        });
+
+        this.time.delayedCall(1500, () => {
+            WARNING.destroy()
+            const AOE = this.add.circle(X, Y, RADIUS, 0xff0000, 0.5);
+            this.physics.add.existing(AOE, true);
+            const AOE_RADIUS = RADIUS * 0.9;
+            AOE.body.setOffset(RADIUS - AOE_RADIUS, RADIUS - AOE_RADIUS);
+
+            const OVERLAP_CHECK = this.physics.add.overlap(
+                this.player,
+                AOE,
+                () => {
+                    this.hitByEnemy();
+                },
+                null,
+                this
+            );
+
+            this.time.delayedCall(3000, () => {
+                AOE.destroy();
+                this.physics.world.removeCollider(OVERLAP_CHECK);
+            });
         });
     }
 }
