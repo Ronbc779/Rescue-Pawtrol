@@ -17,6 +17,6 @@ class Preload extends Phaser.Scene {
         this.load.image('taxi_car', 'src/assets/taxi_car.png');
     }
     create(){
-        this.scene.start('Level1');
+        this.scene.start('Menu');
     }
 }
