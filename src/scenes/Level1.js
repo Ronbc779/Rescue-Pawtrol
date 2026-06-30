@@ -276,6 +276,8 @@ class Level1 extends Phaser.Scene {
             ENEMY.body.setVelocity(0);
         });
 
+        this.upgradePanelContainer.destroy();
+
         this.add.rectangle(400, 300, 800, 600, 0x000000, 0.7)
         .setScrollFactor(0).setDepth(20);
 
@@ -727,7 +729,7 @@ class Level1 extends Phaser.Scene {
             fontSize: '15px', color: '#ffffff', fontStyle: 'bold'
         }).setOrigin(0.5).setScrollFactor(0).setDepth(22);
 
-        continueBtn.on('pointerdown', () => this.goToLevel2());
+        continueBtn.on('pointerdown', () => this.scene.start('Tutorial', { level: 'Level1' }));
         continueBtn.on('pointerover', () => continueBtn.setFillStyle(0x42a5f5, 1));
         continueBtn.on('pointerout', () => continueBtn.setFillStyle(0x2196f3, 1));
 
