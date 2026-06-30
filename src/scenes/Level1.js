@@ -84,7 +84,7 @@ class Level1 extends Phaser.Scene {
 
         this.catsToRescue = this.physics.add.staticGroup();
         this.spawnCats(5);
-        this.carriedCat = null;
+        this.carriedCats = [];
         this.physics.add.overlap(
             this.player,
             this.catsToRescue,
@@ -205,9 +205,9 @@ class Level1 extends Phaser.Scene {
 
         BODY.velocity.normalize().scale(SPEED);
 
-        if (this.carriedCat) {
-            this.carriedCat.setPosition(this.player.x + 20, this.player.y -10);
-        }
+        this.carriedCats.forEach((carried, i) => {
+            carried.setPosition(this.player.x + 20 + (i * 14), this.player.y - 10 - (i * 6));
+        });
     }
 
     spawnCats(count) {
@@ -223,19 +223,28 @@ class Level1 extends Phaser.Scene {
     }
 
     pickUpCat(player, cat) {
-        if  (this.carriedCat) return;
+        const maxCarry = this.canCarryTwo ? 2 : 1;
+        if (this.carriedCats.length >= maxCarry) return;
 
         cat.setActive(false).setVisible(false);
-        cat.destroy();
-        this.carriedCat = this.add.rectangle(0, 0, 18, 18, 0xffdd57);
+        cat.body.enable = false;
+
+        const carried = this.add.rectangle(0, 0, 16, 16, 0xffdd57);
+        carried.setScale(0.7);
+        this.carriedCats.push(carried);
     }
 
     dropOffCat(player, safeZone) {
-        if(!this.carriedCat) return;
-        this.carriedCat.destroy();
-        this.carriedCat = null;
-        this.player.rescuedCats++;
-        this.fillShelterCapacity();
+        if (this.carriedCats.length === 0) return;
+
+        this.carriedCats.forEach(c => c.destroy());
+        const numDropped = this.carriedCats.length;
+        this.carriedCats = [];
+
+        this.player.rescuedCats += numDropped;
+        for (let i = 0; i < numDropped; i++) {
+            this.fillShelterCapacity();
+        }
     }
 
     spawnEnemies(count) {
@@ -587,8 +596,23 @@ class Level1 extends Phaser.Scene {
             console.log('Button clicked:', label);
             onClick()
         });
-        BTN.on('pointerover', () => BTN.setFillStyle(0x66bb6a, 0.9));
-        BTN.on('pointerout', () => BTN.setFillStyle(0x4caf50, 0.9));
+        BTN.on('pointerover', () => {
+            if ((label.includes('Speed') && this.speedBoostBought) || 
+                (label.includes('Carry') && this.canCarryTwo) || 
+                (label.includes('Zoom') && this.zoomBought)) {
+                return;
+            }
+            BTN.setFillStyle(0x66bb6a, 0.9);
+        });
+
+        BTN.on('pointerout', () => {
+            if ((label.includes('Speed') && this.speedBoostBought) || 
+                (label.includes('Carry') && this.canCarryTwo) || 
+                (label.includes('Zoom') && this.zoomBought)) {
+                return;
+            }
+            BTN.setFillStyle(0x4caf50, 0.9);
+        });
 
         return { BTN, TEXT, cost };
     }
@@ -611,9 +635,9 @@ class Level1 extends Phaser.Scene {
 
     buyCarryTwo() {
         if (this.canCarryTwo) return;
-        if (this.love < 25) return;
+        if (this.love < 0) return;
 
-        this.love -= 25;
+        this.love -= 0;
         this.canCarryTwo = true;
         this.updateUpgradeUI();
         this.upgradeButtons.carry.BTN.setFillStyle(0x888888, 0.9);
