@@ -58,50 +58,64 @@ class Level2 extends Phaser.Scene {
         const angle = Math.atan2(DY, DX);
         const deg = Phaser.Math.RadToDeg(angle);
 
-        if (deg >= -45 && deg < 45) {                                                                   
+        const prevDir = this.currentDirection;
+
+        if (deg >= -65 && deg < 65) {
             this.currentDirection = 'right';
-        } else if (deg >= 45 && deg < 135) {
+        } else if (deg >= 65 && deg < 115) {
             this.currentDirection = 'down';
-        } else if (deg >= 135 || deg < -135) {
+        } else if (deg >= 115 || deg < -115) {
             this.currentDirection = 'left';
         } else {
             this.currentDirection = 'up';
         }
 
-        this.positionShield();
+        this.positionShield(pointer.x, pointer.y);
     }
 
-    positionShield() {
+    positionShield(mouseX, mouseY) {
         const RADIUS = 80;
         const CX = this.scale.width / 2;
         const CY = this.scale.height / 2;
         const SW = this.shieldWidth;
         const SH = this.shieldHeight;
 
+        const SLIDE_RANGE = 80;
+
+        let shieldX, shieldY;
+
         switch (this.currentDirection) {
             case 'up':
-                this.shield.setPosition(CX, CY - RADIUS);
+                shieldX = Phaser.Math.Clamp(mouseX, CX - SLIDE_RANGE, CX + SLIDE_RANGE);
+                shieldY = CY - RADIUS;
+                this.shield.setPosition(shieldX, shieldY);
                 this.shield.setSize(SW, SH);
                 this.shield.body.setSize(SW, SH);
-                this.shield.body.reset(CX, CY - RADIUS);
+                this.shield.body.reset(shieldX, shieldY);
                 break;
             case 'down':
-                this.shield.setPosition(CX, CY + RADIUS);
+                shieldX = Phaser.Math.Clamp(mouseX, CX - SLIDE_RANGE, CX + SLIDE_RANGE);
+                shieldY = CY + RADIUS;
+                this.shield.setPosition(shieldX, shieldY);
                 this.shield.setSize(SW, SH);
                 this.shield.body.setSize(SW, SH);
-                this.shield.body.reset(CX, CY + RADIUS);
+                this.shield.body.reset(shieldX, shieldY);
                 break;
             case 'left':
-                this.shield.setPosition(CX - RADIUS, CY);
+                shieldX = CX - RADIUS;
+                shieldY = Phaser.Math.Clamp(mouseY, CY - SLIDE_RANGE, CY + SLIDE_RANGE);
+                this.shield.setPosition(shieldX, shieldY);
                 this.shield.setSize(SH, SW);
                 this.shield.body.setSize(SH, SW);
-                this.shield.body.reset(CX - RADIUS, CY);
+                this.shield.body.reset(shieldX, shieldY);
                 break;
             case 'right':
-                this.shield.setPosition(CX + RADIUS, CY);
+                shieldX = CX + RADIUS;
+                shieldY = Phaser.Math.Clamp(mouseY, CY - SLIDE_RANGE, CY + SLIDE_RANGE);
+                this.shield.setPosition(shieldX, shieldY);
                 this.shield.setSize(SH, SW);
                 this.shield.body.setSize(SH, SW);
-                this.shield.body.reset(CX + RADIUS, CY);
+                this.shield.body.reset(shieldX, shieldY);
                 break;
         }
     }
