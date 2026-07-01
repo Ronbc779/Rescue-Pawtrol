@@ -39,11 +39,65 @@ class Level2 extends Phaser.Scene {
         );
 
         this.shield.setStrokeStyle(2, 0xffffff, 1);
-        this.physics.add.existing(this.shield, false);
-        this.shield.body.setImmovable(true);
+        this.physics.add.existing(this.shield, true);
 
     }
-    update(){
-        const POINTER = this.input.activePointer;
+    update() {
+        if (this.gameOver || this.inShop) return;
+
+        const pointer = this.input.activePointer;
+        const CX = this.scale.width / 2;
+        const CY = this.scale.height / 2;
+        const DX = pointer.x - CX;
+        const DY = pointer.y - CY;
+        const angle = Math.atan2(DY, DX);
+        const deg = Phaser.Math.RadToDeg(angle);
+
+        if (deg >= -45 && deg < 45) {                                                                   
+            this.currentDirection = 'right';
+        } else if (deg >= 45 && deg < 135) {
+            this.currentDirection = 'down';
+        } else if (deg >= 135 || deg < -135) {
+            this.currentDirection = 'left';
+        } else {
+            this.currentDirection = 'up';
+        }
+
+        this.positionShield();
+    }
+
+    positionShield() {
+        const RADIUS = 80;
+        const CX = this.scale.width / 2;
+        const CY = this.scale.height / 2;
+        const SW = this.shieldWidth;
+        const SH = this.shieldHeight;
+
+        switch (this.currentDirection) {
+            case 'up':
+                this.shield.setPosition(CX, CY - RADIUS);
+                this.shield.setSize(SW, SH);
+                this.shield.body.setSize(SW, SH);
+                this.shield.body.reset(CX, CY - RADIUS);
+                break;
+            case 'down':
+                this.shield.setPosition(CX, CY + RADIUS);
+                this.shield.setSize(SW, SH);
+                this.shield.body.setSize(SW, SH);
+                this.shield.body.reset(CX, CY + RADIUS);
+                break;
+            case 'left':
+                this.shield.setPosition(CX - RADIUS, CY);
+                this.shield.setSize(SH, SW);
+                this.shield.body.setSize(SH, SW);
+                this.shield.body.reset(CX - RADIUS, CY);
+                break;
+            case 'right':
+                this.shield.setPosition(CX + RADIUS, CY);
+                this.shield.setSize(SH, SW);
+                this.shield.body.setSize(SH, SW);
+                this.shield.body.reset(CX + RADIUS, CY);
+                break;
+        }
     }
 }
