@@ -43,8 +43,21 @@ class Level2 extends Phaser.Scene {
         this.shield.setStrokeStyle(2, 0xffffff, 1);
         this.physics.add.existing(this.shield, true);
 
-        this.cameras.main.setZoom(1.2);
-        this.cameras.main.centerOn(400, 300);
+        this.hpText = this.add.text(20, 20, `HP: ${this.catHP}`, {
+            fontSize: '20px', color: '#ff6666', fontStyle: 'bold'
+        }).setDepth(10);
+
+        this.waveText = this.add.text(400, 20, `Wave 1 / 3`, {
+            fontSize: '20px', color: '#ffdd57', fontStyle: 'bold'
+        }).setOrigin(0.5, 0).setDepth(10);
+
+        this.timerText = this.add.text(700, 20, `30s`, {
+            fontSize: '20px', color: '#ffffff'
+        }).setOrigin(1, 0).setDepth(10);
+
+        this.add.text(400, 570, 'Move mouse to aim shield', {
+            fontSize: '14px', color: '#aaaaaa'
+        }).setOrigin(0.5).setDepth(10);
 
     }
     update() {
