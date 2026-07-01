@@ -12,6 +12,13 @@ class Preload extends Phaser.Scene {
         this.load.spritesheet('laser', 'src/assets/LaserShot.png', { frameWidth: 64, frameHeight: 64 });
         this.load.spritesheet('explosion', 'src/assets/smoke_explosion.png', { frameWidth: 200, frameHeight: 200 });
 
+        this.load.image('white_cat1', 'src/assets/white_cat1.png');
+        this.load.image('white_cat2', 'src/assets/white_cat2.png');
+        this.load.image('gray_cat1', 'src/assets/gray_cat1.png');
+        this.load.image('gray_cat2', 'src/assets/gray_cat2.png');
+        this.load.image('orange_cat1', 'src/assets/orange_cat1.png');
+        this.load.image('orange_cat2', 'src/assets/orange_cat2.png');
+
         this.load.image('rescue_center', 'src/assets/rescue_center.png');
         this.load.image('red_car', 'src/assets/red_car.png');
         this.load.image('taxi_car', 'src/assets/taxi_car.png');

@@ -211,10 +211,13 @@ class Level1 extends Phaser.Scene {
     }
 
     spawnCats(count) {
+        const CATS = ["white_cat1", "white_cat2", "gray_cat1", "gray_cat2", "orange_cat1", "orange_cat2"]
         for (let i = 0; i < count; i++) {
             const x = Phaser.Math.Between(200, this.worldWidth - 200);
             const y = Phaser.Math.Between(200, this.worldHeight - 200);
-            const cat = this.add.rectangle(x, y, 24, 24, 0xffdd57);
+
+            const random = Phaser.Utils.Array.GetRandom(CATS);
+            const cat = this.physics.add.staticSprite(x, y, random);        
             cat.setDepth(1);
             this.physics.add.existing(cat, true);
             this.catsToRescue.add(cat);
@@ -229,7 +232,7 @@ class Level1 extends Phaser.Scene {
         cat.setActive(false).setVisible(false);
         cat.body.enable = false;
 
-        const carried = this.add.rectangle(0, 0, 16, 16, 0xffdd57);
+        const carried = this.add.sprite(0, 0, cat.texture.key);
         carried.setScale(0.7);
         this.carriedCats.push(carried);
     }
