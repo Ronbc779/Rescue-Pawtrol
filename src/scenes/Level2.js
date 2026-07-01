@@ -11,7 +11,7 @@ class Level2 extends Phaser.Scene {
         this.catHP = 1;
         this.maxCatHP = 1;
 
-        this.shieldWidth = 80;
+        this.shieldWidth = 50;
         this.shieldHeight = 16;
 
         this.waveTimerReduction = 0;
@@ -30,7 +30,9 @@ class Level2 extends Phaser.Scene {
             CY, 
             random
         );
-        this.cat.body.setCircle(20);
+        this.cat.setScale(3);
+        this.cat.body.setCircle(60);
+        this.cat.refreshBody();
         
         this.shield = this.add.rectangle(
             CX, CY - 70,
@@ -40,6 +42,9 @@ class Level2 extends Phaser.Scene {
 
         this.shield.setStrokeStyle(2, 0xffffff, 1);
         this.physics.add.existing(this.shield, true);
+
+        this.cameras.main.setZoom(1.2);
+        this.cameras.main.centerOn(400, 300);
 
     }
     update() {
