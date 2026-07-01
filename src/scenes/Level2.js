@@ -59,6 +59,8 @@ class Level2 extends Phaser.Scene {
             fontSize: '14px', color: '#aaaaaa'
         }).setOrigin(0.5).setDepth(10);
 
+        this.badProjectiles = this.physics.add.group();
+
     }
     update() {
         if (this.gameOver || this.inShop) return;
@@ -131,5 +133,46 @@ class Level2 extends Phaser.Scene {
                 this.shield.body.reset(shieldX, shieldY);
                 break;
         }
+    }
+
+    getCardinalSpawnPoint() {
+        const dirs = ['up', 'down', 'left', 'right'];
+        const dir = Phaser.Utils.Array.GetRandom(dirs);
+        let x, y, vx, vy;
+        const SPEED = this.waveSpeeds[this.waveIndex];
+        const OFFSET = Phaser.Math.Between(-150, 150);
+
+        switch (dir) {
+            case 'up':    x = this.scale.width/2 + OFFSET;  y = -20;  vx = 0;      vy = SPEED;  break;
+            case 'down':  x = this.scale.width/2 + OFFSET;  y = 620;  vx = 0;      vy = -SPEED; break;
+            case 'left':  x = -20;  y = this.scale.height/2 + OFFSET; vx = SPEED;  vy = 0;      break;
+            case 'right': x = 820;  y = this.scale.height/2 + OFFSET; vx = -SPEED; vy = 0;      break;
+        }
+        return { x, y, vx, vy, dir };
+    }
+
+    spawnBadProjectile() {
+        const { x, y, vx, vy } = this.getCardinalSpawnPoint();
+
+        const types = ['bullet', 'rock', 'net'];
+        const type = Phaser.Utils.Array.GetRandom(types);
+
+        let color, size;
+        if (type === 'bullet')     { color = 0xffe066; size = 8; }
+        else if (type === 'rock')  { color = 0x8a7350; size = 14; }
+        else                       { color = 0x66ff99; size = 18; }
+
+        const proj = this.add.circle(x, y, size, color);
+        proj.setStrokeStyle(2, 0x000000, 0.5);
+        proj.hazardType = type;
+
+        this.physics.add.existing(proj);
+        proj.body.setCircle(size);
+        this.badProjectiles.add(proj);
+        proj.body.setVelocity(vx, vy);
+
+        this.time.delayedCall(6000, () => {
+            if (proj.active) proj.destroy();
+        });
     }
 }
