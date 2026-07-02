@@ -61,6 +61,11 @@ class Level2 extends Phaser.Scene {
 
         this.badProjectiles = this.physics.add.group();
 
+        this.physics.add.collider(this.badProjectiles, this.shieldGraphic, this.onShieldBlock, null, this);
+        this.physics.add.overlap(this.badProjectiles, this.cat, this.onHit, null, this);
+
+        this.startWave();
+
     }
     update() {
         if (this.gameOver || this.inShop) return;
@@ -140,7 +145,7 @@ class Level2 extends Phaser.Scene {
         const dir = Phaser.Utils.Array.GetRandom(dirs);
         let x, y, vx, vy;
         const SPEED = this.waveSpeeds[this.waveIndex];
-        const OFFSET = Phaser.Math.Between(-150, 150);
+        const OFFSET = Phaser.Math.Between(-100, 100);
 
         switch (dir) {
             case 'up':    x = this.scale.width/2 + OFFSET;  y = -20;  vx = 0;      vy = SPEED;  break;
@@ -174,5 +179,87 @@ class Level2 extends Phaser.Scene {
         this.time.delayedCall(6000, () => {
             if (proj.active) proj.destroy();
         });
+    }
+
+    onShieldBlock(shield, proj) {
+        this.flashShield(0xffffff);
+        proj.destroy();
+    }
+
+    flashShield(color = 0xffffff) {
+        this.shieldGraphic.setFillStyle(color, 1);
+        this.time.delayedCall(120, () => {
+            if (this.shieldGraphic.active) {
+                this.shieldGraphic.setFillStyle(0x66ccff, 0.9);
+            }
+        });
+    }
+
+    onHit(cat, proj) {
+        if (this.gameOver) return;
+        proj.destroy();
+        this.catHP--;
+        this.hpText.setText(`HP: ${this.catHP}`);
+
+        this.cat.setTint(0xff0000);
+        this.time.delayedCall(200, () => {
+            if (this.cat.active) this.cat.clearTint();
+        });
+
+        if (this.catHP <= 0) {
+            this.loseGame();
+        }
+    }
+
+    startWave() {
+        const waveNum = this.waveIndex;
+        let duration = this.waveDurations[waveNum] - this.waveTimerReduction;
+        duration = Math.max(10, duration);
+        this.timeRemaining = duration;
+
+        this.waveText.setText(`Wave ${waveNum + 1} / 3`);
+        this.timerText.setText(`${this.timeRemaining}s`);
+
+        this.waveCountdown = this.time.addEvent({
+            delay: 1000,
+            loop: true,
+            callback: () => {
+                if (this.gameOver || this.inShop) return;
+                this.timeRemaining--;
+                this.timerText.setText(`${this.timeRemaining}s`);
+
+                if (this.timeRemaining <= 10) {
+                    this.timerText.setColor('#ff3333');
+                } else {
+                    this.timerText.setColor('#ffffff');
+                }
+
+                if (this.timeRemaining <= 0) {
+                    this.endWave();
+                }
+            }
+        });
+
+        this.spawnTimer = this.time.addEvent({
+            delay: this.waveSpawnDelays[waveNum],
+            loop: true,
+            callback: () => {
+                if (this.gameOver || this.inShop) return;
+                this.spawnBadProjectile();
+            }
+        });
+    }
+
+    endWave() {
+        this.waveCountdown.remove();
+        this.spawnTimer.remove();
+        this.badProjectiles.clear(true, true);
+
+        if (this.waveIndex >= 2) {
+            this.winGame();
+        } else {
+            this.waveIndex++;
+            this.showShop();
+        }
     }
 }
