@@ -4,20 +4,20 @@ class Level2 extends Phaser.Scene {
     }
     init() {
         this.waveIndex = 0;
-        this.waveDurations = [30, 45, 60];
-        this.waveSpawnDelays = [1200, 800, 500];
-        this.waveSpeeds = [180, 260, 360];
+        this.waveDurations = [20, 30, 45];
+        this.waveSpawnDelays = [1200, 900, 600];
+        this.waveSpeeds = [180, 230, 300];
 
         this.catHP = 1;
         this.maxCatHP = 1;
 
-        this.shieldWidth = 50;
+        this.shieldWidth = 60;
         this.shieldHeight = 16;
 
         this.waveTimerReduction = 0;
 
         this.gameOver = false;
-        this.inShop = false;
+        this.inUpgrades = false;
         this.currentDirection = 'up';
     }
     create(){
@@ -30,8 +30,8 @@ class Level2 extends Phaser.Scene {
             CY, 
             random
         );
-        this.cat.setScale(3);
-        this.cat.body.setCircle(60);
+        this.cat.setScale(5);
+        this.cat.body.setCircle(75);
         this.cat.refreshBody();
         
         this.shield = this.add.rectangle(
@@ -51,7 +51,7 @@ class Level2 extends Phaser.Scene {
             fontSize: '20px', color: '#ffdd57', fontStyle: 'bold'
         }).setOrigin(0.5, 0).setDepth(10);
 
-        this.timerText = this.add.text(700, 20, `30s`, {
+        this.timerText = this.add.text(700, 20, `20s`, {
             fontSize: '20px', color: '#ffffff'
         }).setOrigin(1, 0).setDepth(10);
 
@@ -61,14 +61,14 @@ class Level2 extends Phaser.Scene {
 
         this.badProjectiles = this.physics.add.group();
 
-        this.physics.add.collider(this.badProjectiles, this.shieldGraphic, this.onShieldBlock, null, this);
+        this.physics.add.collider(this.badProjectiles, this.shield, this.onShieldBlock, null, this);
         this.physics.add.overlap(this.badProjectiles, this.cat, this.onHit, null, this);
 
         this.startWave();
 
     }
     update() {
-        if (this.gameOver || this.inShop) return;
+        if (this.gameOver || this.inUpgrades) return;
 
         const pointer = this.input.activePointer;
         const CX = this.scale.width / 2;
@@ -163,8 +163,8 @@ class Level2 extends Phaser.Scene {
         const type = Phaser.Utils.Array.GetRandom(types);
 
         let color, size;
-        if (type === 'bullet')     { color = 0xffe066; size = 8; }
-        else if (type === 'rock')  { color = 0x8a7350; size = 14; }
+        if (type === 'bullet')     { color = 0xffe066; size = 10; }
+        else if (type === 'rock')  { color = 0x8a7350; size = 15; }
         else                       { color = 0x66ff99; size = 18; }
 
         const proj = this.add.circle(x, y, size, color);
@@ -187,10 +187,10 @@ class Level2 extends Phaser.Scene {
     }
 
     flashShield(color = 0xffffff) {
-        this.shieldGraphic.setFillStyle(color, 1);
+        this.shield.setFillStyle(color, 1);
         this.time.delayedCall(120, () => {
-            if (this.shieldGraphic.active) {
-                this.shieldGraphic.setFillStyle(0x66ccff, 0.9);
+            if (this.shield.active) {
+                this.shield.setFillStyle(0x66ccff, 0.9);
             }
         });
     }
@@ -224,7 +224,7 @@ class Level2 extends Phaser.Scene {
             delay: 1000,
             loop: true,
             callback: () => {
-                if (this.gameOver || this.inShop) return;
+                if (this.gameOver || this.inUpgrades) return;
                 this.timeRemaining--;
                 this.timerText.setText(`${this.timeRemaining}s`);
 
@@ -244,7 +244,7 @@ class Level2 extends Phaser.Scene {
             delay: this.waveSpawnDelays[waveNum],
             loop: true,
             callback: () => {
-                if (this.gameOver || this.inShop) return;
+                if (this.gameOver || this.inUpgrades) return;
                 this.spawnBadProjectile();
             }
         });
@@ -259,7 +259,145 @@ class Level2 extends Phaser.Scene {
             this.winGame();
         } else {
             this.waveIndex++;
-            this.showShop();
+            this.showUpgrades();
         }
+    }
+
+    showUpgrades() {
+        this.inUpgrades = true;
+
+        const overlay = this.add.rectangle(400, 300, 800, 600, 0x000000, 0.85).setDepth(30);
+
+        this.add.text(400, 120, `Wave ${this.waveIndex} Complete!`, {
+            fontSize: '32px', color: '#ffdd57', fontStyle: 'bold'
+        }).setOrigin(0.5).setDepth(31);
+
+        this.add.text(400, 170, 'Choose ONE free upgrade:', {
+            fontSize: '18px', color: '#ffffff'
+        }).setOrigin(0.5).setDepth(31);
+
+        const upgrades = [
+            {
+                label: 'Bigger Shield',
+                desc: 'Shield width +30',
+                action: () => {
+                    this.shieldWidth += 30;
+                    this.closeUpgrades();
+                }
+            },
+            {
+                label: 'Extra Health',
+                desc: '+1 max HP, restores 1 HP',
+                action: () => {
+                    this.maxCatHP++;
+                    this.catHP = Math.min(this.catHP + 1, this.maxCatHP);
+                    this.hpText.setText(`HP: ${this.catHP}`);
+                    this.closeUpgrades();
+                }
+            },
+            {
+                label: '⏩ Faster Timer',
+                desc: `-10 seconds from Wave ${this.waveIndex + 1}`,
+                action: () => {
+                    this.waveTimerReduction += 10;
+                    this.closeUpgrades();
+                }
+            }
+        ];
+
+        this.upgradesObjects = [overlay];
+
+        upgrades.forEach((upgrade, i) => {
+            const btnY = 260 + i * 100;
+
+            const btn = this.add.rectangle(400, btnY, 320, 75, 0x4caf50, 1)
+                .setDepth(31).setInteractive({ useHandCursor: true });
+            btn.setStrokeStyle(3, 0xffffff, 1);
+
+            const labelText = this.add.text(400, btnY - 12, upgrade.label, {
+                fontSize: '18px', color: '#ffffff', fontStyle: 'bold'
+            }).setOrigin(0.5).setDepth(32);
+
+            const descText = this.add.text(400, btnY + 14, upgrade.desc, {
+                fontSize: '13px', color: '#ccffcc'
+            }).setOrigin(0.5).setDepth(32);
+
+            btn.on('pointerover', () => btn.setFillStyle(0x66bb6a, 1));
+            btn.on('pointerout', () => btn.setFillStyle(0x4caf50, 1));
+            btn.on('pointerdown', upgrade.action);
+
+            this.upgradesObjects.push(btn, labelText, descText);
+        });
+    }
+
+    closeUpgrades() {
+        this.upgradesObjects.forEach(obj => obj.destroy());
+        this.upgradesObjects = [];
+        this.inUpgrades = false;
+        this.startWave();
+    }
+
+    winGame() {
+        this.gameOver = true;
+
+        this.add.rectangle(400, 300, 800, 600, 0x000000, 0.8).setDepth(40);
+
+        this.add.text(400, 200, 'CAT SAVED!', {
+            fontSize: '42px', color: '#ffdd57', fontStyle: 'bold'
+        }).setOrigin(0.5).setDepth(41);
+
+        this.add.text(400, 265, 'You protected the cat through all 3 waves!', {
+            fontSize: '16px', color: '#00ff99'
+        }).setOrigin(0.5).setDepth(41);
+
+        this.add.text(400, 330, 'They deserve to be protected as well.', {
+            fontSize: '8px', color: '#00ff99'
+        }).setOrigin(0.5).setDepth(41);
+
+        const continueBtn = this.add.rectangle(400, 350, 240, 55, 0x2196f3, 1)
+            .setDepth(41).setInteractive({ useHandCursor: true });
+        continueBtn.setStrokeStyle(3, 0xffffff, 1);
+
+        this.add.text(400, 350, 'Proceed', {
+            fontSize: '15px', color: '#ffffff', fontStyle: 'bold'
+        }).setOrigin(0.5).setDepth(42);
+
+        continueBtn.on('pointerdown', () => this.scene.start('Tutorial', { level: 'Level3' }));
+        continueBtn.on('pointerover', () => continueBtn.setFillStyle(0x42a5f5, 1));
+        continueBtn.on('pointerout', () => continueBtn.setFillStyle(0x2196f3, 1));
+
+        this.add.text(400, 420, 'Press R to try again', {
+            fontSize: '14px', color: '#aaaaaa'
+        }).setOrigin(0.5).setDepth(41);
+
+        this.input.keyboard.once('keydown-R', () => {
+            this.scene.restart();
+        });
+    }
+
+    loseGame() {
+        this.gameOver = true;
+
+        this.badProjectiles.clear(true, true);
+        if (this.waveCountdown) this.waveCountdown.remove();
+        if (this.spawnTimer) this.spawnTimer.remove();
+
+        this.add.rectangle(400, 300, 800, 600, 0x000000, 0.8).setDepth(40);
+
+        this.add.text(400, 220, 'GAME OVER', {
+            fontSize: '42px', color: '#ff3333', fontStyle: 'bold'
+        }).setOrigin(0.5).setDepth(41);
+
+        this.add.text(400, 280, `Reached Wave ${this.waveIndex + 1}`, {
+            fontSize: '20px', color: '#ffffff'
+        }).setOrigin(0.5).setDepth(41);
+
+        this.add.text(400, 340, 'Press R to try again', {
+            fontSize: '18px', color: '#aaaaaa'
+        }).setOrigin(0.5).setDepth(41);
+
+        this.input.keyboard.once('keydown-R', () => {
+            this.scene.restart();
+        });
     }
 }
