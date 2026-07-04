@@ -161,18 +161,38 @@ class Level2 extends Phaser.Scene {
 
         const types = ['bullet', 'rock', 'net'];
         const type = Phaser.Utils.Array.GetRandom(types);
+        const size = 32;
 
-        let color, size;
-        if (type === 'bullet')     { color = 0xffe066; size = 10; }
-        else if (type === 'rock')  { color = 0x8a7350; size = 15; }
-        else                       { color = 0x66ff99; size = 18; }
+        let proj;
 
-        const proj = this.add.circle(x, y, size, color);
-        proj.setStrokeStyle(2, 0x000000, 0.5);
+        if (type === 'rock')     {
+            const rockTextures = ['moss_rock', 'sand_rock', 'blue_rock', 'gray_rock'];
+            const chosenTexture = Phaser.Utils.Array.GetRandom(rockTextures);
+
+            proj = this.add.sprite(x, y, chosenTexture);
+            const visualScale = 0.2;
+            proj.setScale(visualScale);
+
+            this.physics.add.existing(proj);
+            const scaledSize = 256 * visualScale;
+            const radius = scaledSize / 2;
+            proj.body.setSize(scaledSize, scaledSize);
+            const offset = (256 - scaledSize) / 2;
+            proj.body.setOffset(offset, offset);
+        }
+        else{
+            let color, size;
+            if (type === 'bullet')  { color = 0x8a7350; size = 10; }
+            else  { color = 0x66ff99; size = 18; }
+
+            proj = this.add.circle(x, y, size, color);
+            proj.setStrokeStyle(2, 0x000000, 0.5);
+            
+            this.physics.add.existing(proj);
+            proj.body.setCircle(size);
+            
+        }
         proj.hazardType = type;
-
-        this.physics.add.existing(proj);
-        proj.body.setCircle(size);
         this.badProjectiles.add(proj);
         proj.body.setVelocity(vx, vy);
 

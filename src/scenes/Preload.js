@@ -9,7 +9,7 @@ class Preload extends Phaser.Scene {
         this.load.spritesheet('cat_walk_up_right', 'src/assets/walk_up_right.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('cat_walk_down_left', 'src/assets/walk_down_left.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('cat_walk_down_right', 'src/assets/walk_down_right.png', { frameWidth: 32, frameHeight: 32 });
-        this.load.spritesheet('laser', 'src/assets/LaserShot.png', { frameWidth: 64, frameHeight: 64 });
+        this.load.spritesheet('laser', 'src/assets/Laser.png', { frameWidth: 64, frameHeight: 24 });
         this.load.spritesheet('explosion', 'src/assets/smoke_explosion.png', { frameWidth: 200, frameHeight: 200 });
 
         this.load.image('white_cat1', 'src/assets/white_cat1.png');
@@ -22,6 +22,11 @@ class Preload extends Phaser.Scene {
         this.load.image('rescue_center', 'src/assets/rescue_center.png');
         this.load.image('red_car', 'src/assets/red_car.png');
         this.load.image('taxi_car', 'src/assets/taxi_car.png');
+
+        this.load.image('gray_rock', 'src/assets/gray_rock.png');
+        this.load.image('blue_rock', 'src/assets/blue_rock.png');
+        this.load.image('moss_rock', 'src/assets/moss_rock.png');
+        this.load.image('sand_rock', 'src/assets/sand_rock.png');
     }
     create(){
         this.scene.start('Menu');
