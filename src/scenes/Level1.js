@@ -427,7 +427,9 @@ class Level1 extends Phaser.Scene {
         dustZone,
         () => {
             this.triggerLowVisibility();
-            this.sound.play('wind', { volume: 0.3});
+            if (player.body.wasTouching.none && !player.body.touching.none) {
+                this.sound.play('wind', { volume: 0.3 });
+            }
         },
         null,
         this

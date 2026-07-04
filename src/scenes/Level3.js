@@ -9,7 +9,7 @@ class Level3 extends Phaser.Scene {
 
     this.gameOver = false;
     this.savedCount = 0;
-    this.targetSaves = 12;
+    this.targetSaves = 30;
     this.timeRemaining = 75;
     this.selectedCat = null;
 
@@ -55,7 +55,7 @@ class Level3 extends Phaser.Scene {
     this.spawnWaitingCat();
     this.spawnWaitingCat();
 
-    
+    this.startTimers();
   }
 
   update() {
@@ -139,15 +139,15 @@ class Level3 extends Phaser.Scene {
     this.waitingCats = this.waitingCats.filter(c => c !== cat);
 
     this.tweens.add({
-        targets: [cat, cat.icon, cat.selectionRing],
-        y: '-=40',
-        alpha: 0,
-        duration: 400,
-        onComplete: () => {
-          cat.destroy();
-          cat.icon.destroy();
-          cat.selectionRing.destroy();
-        }
+      targets: [cat, cat.icon, cat.selectionRing],
+      y: '-=40',
+      alpha: 0,
+      duration: 400,
+      onComplete: () => {
+        cat.destroy();
+        cat.icon.destroy();
+        cat.selectionRing.destroy();
+      }
     });
 
     this.savedCount++;
@@ -171,5 +171,75 @@ class Level3 extends Phaser.Scene {
     if (this.selectedCat) {
       this.selectedCat.selectionRing.setStrokeStyle(3, 0xffffff, 0);
     }
+  }
+
+  startTimers() {
+    this.countdownEvent = this.time.addEvent({
+      delay: 1000,
+      loop: true,
+      callback: () => {
+        if (this.gameOver) return;
+        this.timeRemaining--;
+        this.timerText.setText(`${this.timeRemaining}s`);
+        if (this.timeRemaining <= 30) {
+          this.timerText.setColor('#ffaa00');
+        }
+
+        if (this.timeRemaining <= 15) {
+          this.timerText.setColor('#ff3333');
+        }
+
+        if (this.timeRemaining <= 0) {
+          this.endRound(false);
+        }
+      }
+    });
+    this.currentSpawnDelay = 1800;
+    this.nextSpawn();
+  }
+
+  nextSpawn() {
+    if (this.gameOver) return;
+
+    this.spawnEvent = this.time.delayedCall(this.currentSpawnDelay, () => {
+      this.spawnWaitingCat();
+      this.currentSpawnDelay = Math.max(600, this.currentSpawnDelay - 40);
+      this.nextSpawn();
+    });
+  }
+
+  endRound(won) {
+    if (this.gameOver) return;
+    this.gameOver = true;
+
+    if (this.countdownEvent) this.countdownEvent.remove();
+    if (this.spawnEvent) this.spawnEvent.remove();
+
+    this.add.rectangle(400, 300, 800, 600, 0x000000, 0.75).setDepth(20);
+
+    const title = won ? 'ALL TREATED!' : 'TIME\'S UP';
+    const titleColor = won ? '#00ff99' : '#ff3333';
+
+    this.add.text(400, 230, title, {
+      fontSize: '40px', color: titleColor, fontStyle: 'bold'
+    }).setOrigin(0.5).setDepth(21);
+
+    this.add.text(400, 295, `Cats treated: ${this.savedCount} / ${this.targetSaves}`, {
+      fontSize: '20px', color: '#ffffff'
+    }).setOrigin(0.5).setDepth(21);
+
+    if (won) {
+      this.add.text(400, 345, 'Every animal deserves care and the right needs.', {
+        fontSize: '14px', color: '#ffdd57', align: 'center'
+      }).setOrigin(0.5).setDepth(21);
+    }
+
+    this.add.text(400, 420, 'Press R to try again', {
+      fontSize: '18px', color: '#aaaaaa'
+    }).setOrigin(0.5).setDepth(21);
+
+    this.input.keyboard.once('keydown-R', () => {
+      this.scene.restart();
+    });
   }
 }
