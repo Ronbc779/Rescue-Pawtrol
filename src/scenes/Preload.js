@@ -27,6 +27,19 @@ class Preload extends Phaser.Scene {
         this.load.image('blue_rock', 'src/assets/blue_rock.png');
         this.load.image('moss_rock', 'src/assets/moss_rock.png');
         this.load.image('sand_rock', 'src/assets/sand_rock.png');
+
+        this.load.audio('pickup', 'src/assets/audio/pickup.mp3');
+        this.load.audio('bg1', 'src/assets/audio/bg1.mp3');
+        this.load.audio('deposit', 'src/assets/audio/deposit.mp3');
+        this.load.audio('win', 'src/assets/audio/win.mp3');
+        this.load.audio('lose', 'src/assets/audio/lose.mp3');
+        this.load.audio('hit_metal', 'src/assets/audio/hit_metal.mp3');
+        this.load.audio('hit_rock', 'src/assets/audio/hit_rock.mp3');
+        this.load.audio('hit_wood', 'src/assets/audio/hit_wood.mp3');
+        this.load.audio('buy', 'src/assets/audio/buy.mp3');
+        this.load.audio('car', 'src/assets/audio/car.mp3');
+        this.load.audio('electric', 'src/assets/audio/electric.mp3');
+        this.load.audio('wind', 'src/assets/audio/wind.mp3');
     }
     create(){
         this.scene.start('Menu');

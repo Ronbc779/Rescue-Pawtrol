@@ -227,6 +227,7 @@ class Level2 extends Phaser.Scene {
         });
 
         if (this.catHP <= 0) {
+            this.sound.play('lose');
             this.loseGame();
         }
     }
@@ -359,6 +360,7 @@ class Level2 extends Phaser.Scene {
 
     winGame() {
         this.gameOver = true;
+        this.sound.play('win');
 
         this.add.rectangle(400, 300, 800, 600, 0x000000, 0.8).setDepth(40);
 

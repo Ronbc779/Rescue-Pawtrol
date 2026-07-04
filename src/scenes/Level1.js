@@ -150,6 +150,13 @@ class Level1 extends Phaser.Scene {
             callbackScope: this,
             loop: true
         });
+
+        this.bgMusic = this.sound.add('bg1', { loop: true, volume: 0.4 });
+        this.bgMusic.play();
+
+        this.events.on('shutdown', () => {
+            this.bgMusic.stop();
+        });
         
     }
     update() {
@@ -229,12 +236,12 @@ class Level1 extends Phaser.Scene {
         const maxCarry = this.canCarryTwo ? 2 : 1;
         if (this.carriedCats.length >= maxCarry) return;
 
-        cat.setActive(false).setVisible(false);
-        cat.body.enable = false;
+        cat.disableBody(true, true);
 
         const carried = this.add.sprite(0, 0, cat.texture.key);
         carried.setScale(0.7);
         this.carriedCats.push(carried);
+        this.sound.play('pickup');
     }
 
     dropOffCat(player, safeZone) {
@@ -248,6 +255,7 @@ class Level1 extends Phaser.Scene {
         for (let i = 0; i < numDropped; i++) {
             this.fillShelterCapacity();
         }
+        this.sound.play('deposit');
     }
 
     spawnEnemies(count) {
@@ -277,6 +285,7 @@ class Level1 extends Phaser.Scene {
         if (this.shieldActive) return;
         if (this.gameOver) return;
         this.gameOver = true;
+        this.sound.play('lose');
 
         this.player.body.setVelocity(0);
         this.player.anims.stop();
@@ -418,6 +427,7 @@ class Level1 extends Phaser.Scene {
         dustZone,
         () => {
             this.triggerLowVisibility();
+            this.sound.play('wind', { volume: 0.3});
         },
         null,
         this
@@ -488,6 +498,7 @@ class Level1 extends Phaser.Scene {
                 this.player,
                 LASER,
                 () => {
+                    this.sound.play('electric', { volume: 0.2});
                     this.hitByEnemy();
                 },
                 null,
@@ -596,7 +607,6 @@ class Level1 extends Phaser.Scene {
         }).setOrigin(0.5).setScrollFactor(0).setDepth(101);
 
         BTN.on('pointerdown', () => {
-            console.log('Button clicked:', label);
             onClick()
         });
         BTN.on('pointerover', () => {
@@ -722,6 +732,7 @@ class Level1 extends Phaser.Scene {
     win() { 
         this.gameOver = true;
 
+        this.sound.play('win');
         this.player.body.setVelocity(0);
         this.player.anims.stop();
         this.upgradePanelContainer.destroy();
