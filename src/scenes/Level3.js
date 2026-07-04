@@ -38,6 +38,11 @@ class Level3 extends Phaser.Scene {
       this.stations.push(station);
     });
 
+    this.waitingCats = [];
+    this.spawnWaitingCat();
+    this.spawnWaitingCat();
+    this.spawnWaitingCat();
+
     
   }
 
@@ -46,5 +51,56 @@ class Level3 extends Phaser.Scene {
   }
   onStationClicked(station) {
     console.log('Station clicked:', station.needType);
+  }
+
+  findOpenSlot() {
+    const slots = [
+      { x: 150, y: 150 }, { x: 400, y: 150 }, { x: 650, y: 150 },
+      { x: 150, y: 280 }, { x: 400, y: 280 }, { x: 650, y: 280 }
+    ];
+    for (let i = 0; i < slots.length; i++) {
+      const taken = this.waitingCats.some(c => c.slotIndex === i);
+      if (!taken) {
+        return { x: slots[i].x, y: slots[i].y, index: i };
+      }
+    }
+    return null;
+  }
+
+  spawnWaitingCat() {
+    if (this.gameOver) return;
+    if (this.waitingCats.length >= 6) return;
+
+    const needType = Phaser.Utils.Array.GetRandom(this.needTypes);
+    const slot = this.findOpenSlot();
+    if (!slot) return;
+
+    // Use injured cat sprite if loaded, otherwise a white circle
+    const catKeys = ['injured_cat1','injured_cat2','injured_cat3','injured_cat4'];
+    const randomKey = Phaser.Utils.Array.GetRandom(catKeys);
+
+    const cat = this.textures.exists(randomKey)
+      ? this.add.sprite(slot.x, slot.y, randomKey)
+      : this.add.circle(slot.x, slot.y, 18, 0xffffff);
+
+    cat.setInteractive({ useHandCursor: true });
+    cat.needType = needType;
+    cat.slotIndex = slot.index;
+
+    const icon = this.add.text(slot.x, slot.y - 30, this.needEmoji[needType], {
+      fontSize: '22px'
+    }).setOrigin(0.5);
+    cat.icon = icon;
+
+    const ring = this.add.circle(slot.x, slot.y, 26, 0xffffff, 0);
+    ring.setStrokeStyle(3, 0xffffff, 0);
+    cat.selectionRing = ring;
+
+    cat.on('pointerdown', () => this.onCatClicked(cat));
+    this.waitingCats.push(cat);
+  }
+
+  onCatClicked(cat) {
+    console.log('Cat clicked, needs:', cat.needType);
   }
 }
