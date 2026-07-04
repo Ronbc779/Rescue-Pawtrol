@@ -28,6 +28,14 @@ class Tutorial extends Phaser.Scene {
                     '-  One bad hit reaching the cat = game over'
                 ]
             },
+            Level3: {
+                title: 'LEVEL 3: VET TRIAGE',
+                lines: [
+                    '- Click a cat, then click its matching station',
+                    '- 75 seconds, gets faster over time',
+                    '- Treat 12 cats to win'
+                ]
+            }
         };
 
         const data = content[this.level];
