@@ -38,6 +38,18 @@ class Level3 extends Phaser.Scene {
       this.stations.push(station);
     });
 
+    this.scoreText = this.add.text(20, 20, `Saved: 0 / ${this.targetSaves}`, {
+      fontSize: '18px', color: '#00ff99', fontStyle: 'bold'
+    });
+
+    this.timerText = this.add.text(400, 20, `${this.timeRemaining}s`, {
+      fontSize: '22px', color: '#ffffff', fontStyle: 'bold'
+    }).setOrigin(0.5, 0);
+
+    this.add.text(20, 50, 'Click a cat, then click its matching station.', {
+      fontSize: '13px', color: '#cccccc'
+    });
+
     this.waitingCats = [];
     this.spawnWaitingCat();
     this.spawnWaitingCat();
@@ -50,7 +62,18 @@ class Level3 extends Phaser.Scene {
 
   }
   onStationClicked(station) {
-    console.log('Station clicked:', station.needType);
+    if (this.gameOver) return;
+    if (!this.selectedCat) return;
+
+    const cat = this.selectedCat;
+
+    if (cat.needType === station.needType) {
+      this.saveCat(cat);
+    } else {
+      this.wrongMatch(station);
+    }
+
+    this.selectedCat = null;
   }
 
   findOpenSlot() {
@@ -101,6 +124,52 @@ class Level3 extends Phaser.Scene {
   }
 
   onCatClicked(cat) {
-    console.log('Cat clicked, needs:', cat.needType);
+    if (this.gameOver) return;
+    if (!cat.active) return;
+
+    if (this.selectedCat && this.selectedCat !== cat) {
+      this.selectedCat.selectionRing.setStrokeStyle(3, 0xffffff, 0);
+    }
+
+    this.selectedCat = cat;
+    cat.selectionRing.setStrokeStyle(3, 0xffffff, 1);
+  }
+
+  saveCat(cat) {
+    this.waitingCats = this.waitingCats.filter(c => c !== cat);
+
+    this.tweens.add({
+        targets: [cat, cat.icon, cat.selectionRing],
+        y: '-=40',
+        alpha: 0,
+        duration: 400,
+        onComplete: () => {
+          cat.destroy();
+          cat.icon.destroy();
+          cat.selectionRing.destroy();
+        }
+    });
+
+    this.savedCount++;
+    this.scoreText.setText(`Saved: ${this.savedCount} / ${this.targetSaves}`);
+
+    if (this.savedCount >= this.targetSaves) {
+      this.endRound(true);
+    }
+  }
+
+  wrongMatch(station) {
+    const originalColor = this.needColor[station.needType];
+    station.setFillStyle(0xff0000, 0.9);
+    this.time.delayedCall(200, () => {
+      if (station.active) station.setFillStyle(originalColor, 0.85);
+    });
+
+    this.timeRemaining = Math.max(0, this.timeRemaining - 3);
+    this.timerText.setText(`${this.timeRemaining}s`);
+
+    if (this.selectedCat) {
+      this.selectedCat.selectionRing.setStrokeStyle(3, 0xffffff, 0);
+    }
   }
 }
