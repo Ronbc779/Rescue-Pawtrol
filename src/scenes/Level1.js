@@ -154,7 +154,7 @@ class Level1 extends Phaser.Scene {
     }
     update() {
         if (this.gameOver) return;
-        const SPEED = this.speedBoostBought ? 190 : 160;
+        const SPEED = this.speedBoostBought ? 300 : 160;
         const BODY = this.player.body
         BODY.setVelocity(0);
 
@@ -548,7 +548,7 @@ class Level1 extends Phaser.Scene {
 
 
         panelY += 30;
-        this.upgradeButtons.speed = this.makeUpgradeButton(panelX, panelY, 'Speed +30', 10, () => this.buySpeedBoost());
+        this.upgradeButtons.speed = this.makeUpgradeButton(panelX, panelY, 'Speed', 10, () => this.buySpeedBoost());
         panelY += 45;
         this.upgradeButtons.carry = this.makeUpgradeButton(panelX, panelY, 'Carry 2', 25, () => this.buyCarryTwo());
         panelY += 45;
@@ -628,9 +628,9 @@ class Level1 extends Phaser.Scene {
 
     buySpeedBoost() {
         if (this.speedBoostBought) return;
-        if (this.love < 15) return;
+        if (this.love < 0) return;
 
-        this.love -= 15;
+        this.love -= 0;
         this.speedBoostBought = true;
         this.updateUpgradeUI();
         this.upgradeButtons.speed.BTN.setFillStyle(0x888888, 0.9);
@@ -648,9 +648,9 @@ class Level1 extends Phaser.Scene {
 
     buyZoomOut() {
         if (this.zoomBought) return;
-        if (this.love < 20) return;
+        if (this.love < 0) return;
 
-        this.love -= 20;
+        this.love -= 0;
         this.zoomBought = true;
         this.cameras.main.setZoom(1.0);
         this.updateUpgradeUI();
@@ -659,9 +659,9 @@ class Level1 extends Phaser.Scene {
 
     activateShield() {
         if (this.shieldActive) return;
-        if (this.love < 10) return;
+        if (this.love < 0) return;
 
-        this.love -= 10;
+        this.love -= 0;
         this.shieldActive = true;
         this.updateUpgradeUI();
 
@@ -674,9 +674,9 @@ class Level1 extends Phaser.Scene {
 
         activateSlowEnemies() {
         if (this.enemiesSlowed) return;
-        if (this.love < 10) return;
+        if (this.love < 0) return;
 
-        this.love -= 10;
+        this.love -= 0;
         this.enemiesSlowed = true;
         this.updateUpgradeUI();
 
@@ -687,9 +687,9 @@ class Level1 extends Phaser.Scene {
 
     activateReveal() {
         if (this.revealActive) return;
-        if (this.love < 8) return;
+        if (this.love < 0) return;
 
-        this.love -= 8;
+        this.love -= 0;
         this.revealActive = true;
         this.updateUpgradeUI();
 
