@@ -252,6 +252,7 @@ class Level1 extends Phaser.Scene {
         this.carriedCats = [];
 
         this.player.rescuedCats += numDropped;
+        this.registry.set('catsRescued', this.player.rescuedCats);
         for (let i = 0; i < numDropped; i++) {
             this.fillShelterCapacity();
         }
@@ -261,7 +262,6 @@ class Level1 extends Phaser.Scene {
     spawnEnemies(count) {
         const CARS = ['taxi_car', 'red_car'];
         for (let i = 0; i < count; i++) {
-            console.log("Cat");
             const x = Phaser.Math.Between(400, this.worldWidth - 100);
             const y = Phaser.Math.Between(400, this.worldHeight - 100);
 
@@ -367,6 +367,21 @@ class Level1 extends Phaser.Scene {
             this.physics.add.existing(AOE, true);
             AOE.body.setCircle(RADIUS);
 
+            this.sound.play('pickup');
+
+            let loopCount = 0;
+            AOE.on('animationrepeat', (animation) => {
+                if (animation.key === 'explosion_start') {
+                    loopCount++;
+                    
+                    if (loopCount < 3) {
+                        this.sound.play('explosion', { volume: 0.4 });
+                    } else {
+                        AOE.anims.play('explosion_loop');
+                    }
+                }
+            });
+
             AOE.anims.play('explosion_start');
 
             this.time.delayedCall(400, () => {
@@ -427,7 +442,7 @@ class Level1 extends Phaser.Scene {
         dustZone,
         () => {
             this.triggerLowVisibility();
-            if (player.body.wasTouching.none && !player.body.touching.none) {
+            if (this.player.body.wasTouching.none && !this.player.body.touching.none) {
                 this.sound.play('wind', { volume: 0.3 });
             }
         },
@@ -561,20 +576,20 @@ class Level1 extends Phaser.Scene {
 
 
         panelY += 30;
-        this.upgradeButtons.speed = this.makeUpgradeButton(panelX, panelY, 'Speed', 10, () => this.buySpeedBoost());
+        this.upgradeButtons.speed = this.makeUpgradeButton(panelX, panelY, 'Speed', 10, () => this.buySpeedBoost(10));
         panelY += 45;
-        this.upgradeButtons.carry = this.makeUpgradeButton(panelX, panelY, 'Carry 2', 25, () => this.buyCarryTwo());
+        this.upgradeButtons.carry = this.makeUpgradeButton(panelX, panelY, 'Carry 2', 25, () => this.buyCarryTwo(25));
         panelY += 45;
-        this.upgradeButtons.zoom = this.makeUpgradeButton(panelX, panelY, 'Zoom Out', 20, () => this.buyZoomOut());
+        this.upgradeButtons.zoom = this.makeUpgradeButton(panelX, panelY, 'Zoom Out', 20, () => this.buyZoomOut(20));
         panelY += 55;
 
-        this.upgradeButtons.shield = this.makeUpgradeButton(panelX, panelY, 'Shield 5s', 10, () => this.activateShield());
+        this.upgradeButtons.shield = this.makeUpgradeButton(panelX, panelY, 'Shield 5s', 10, () => this.activateShield(10));
         panelY += 45;
-        this.upgradeButtons.slow = this.makeUpgradeButton(panelX, panelY, 'Slow Enemies', 10, () => this.activateSlowEnemies());
+        this.upgradeButtons.slow = this.makeUpgradeButton(panelX, panelY, 'Slow Enemies', 10, () => this.activateSlowEnemies(10));
         panelY += 45;
-        this.upgradeButtons.reveal = this.makeUpgradeButton(panelX, panelY, 'Reveal Cats', 8, () => this.activateReveal());
+        this.upgradeButtons.reveal = this.makeUpgradeButton(panelX, panelY, 'Reveal Cats', 8, () => this.activateReveal(8));
         panelY += 45;
-        this.upgradeButtons.win = this.makeUpgradeButton(panelX, panelY, 'WIN', 50, () => this.buyWin());
+        this.upgradeButtons.win = this.makeUpgradeButton(panelX, panelY, 'WIN', 50, () => this.buyWin(50));
 
         Object.values(this.upgradeButtons).forEach(b => {
             this.upgradePanelContainer.add([b.BTN, b.TEXT]);
@@ -638,43 +653,47 @@ class Level1 extends Phaser.Scene {
         this.shelterLevelText.setText(`Shelter Lv.${this.shelterLevel} — ${this.shelterCapacity}/${this.shelterCapacityMax}`);
     }
 
-    buySpeedBoost() {
+    buySpeedBoost(cost) {
         if (this.speedBoostBought) return;
-        if (this.love < 0) return;
+        if (this.love < cost) return;
 
-        this.love -= 0;
+        this.love -= cost;
         this.speedBoostBought = true;
+        this.sound.play('buy');
         this.updateUpgradeUI();
         this.upgradeButtons.speed.BTN.setFillStyle(0x888888, 0.9);
     }
 
-    buyCarryTwo() {
+    buyCarryTwo(cost) {
         if (this.canCarryTwo) return;
-        if (this.love < 0) return;
+        if (this.love < cost) return;
 
-        this.love -= 0;
+        this.love -= cost;
         this.canCarryTwo = true;
+        this.sound.play('buy');
         this.updateUpgradeUI();
         this.upgradeButtons.carry.BTN.setFillStyle(0x888888, 0.9);
     }
 
-    buyZoomOut() {
+    buyZoomOut(cost) {
         if (this.zoomBought) return;
-        if (this.love < 0) return;
+        if (this.love < cost) return;
 
-        this.love -= 0;
+        this.love -= cost;
         this.zoomBought = true;
+        this.sound.play('buy');
         this.cameras.main.setZoom(1.0);
         this.updateUpgradeUI();
         this.upgradeButtons.zoom.BTN.setFillStyle(0x888888, 0.9);
     }
 
-    activateShield() {
+    activateShield(cost) {
         if (this.shieldActive) return;
-        if (this.love < 0) return;
+        if (this.love < cost) return;
 
-        this.love -= 0;
+        this.love -= cost;
         this.shieldActive = true;
+        this.sound.play('buy');
         this.updateUpgradeUI();
 
         this.player.setTint(0x66ccff);
@@ -684,12 +703,13 @@ class Level1 extends Phaser.Scene {
         });
     }
 
-        activateSlowEnemies() {
+        activateSlowEnemies(cost) {
         if (this.enemiesSlowed) return;
-        if (this.love < 0) return;
+        if (this.love < cost) return;
 
-        this.love -= 0;
+        this.love -= cost;
         this.enemiesSlowed = true;
+        this.sound.play('buy');
         this.updateUpgradeUI();
 
         this.time.delayedCall(8000, () => {
@@ -697,12 +717,13 @@ class Level1 extends Phaser.Scene {
         });
     }
 
-    activateReveal() {
+    activateReveal(cost) {
         if (this.revealActive) return;
-        if (this.love < 0) return;
+        if (this.love < cost) return;
 
-        this.love -= 0;
+        this.love -= cost;
         this.revealActive = true;
+        this.sound.play('buy');
         this.updateUpgradeUI();
 
         this.catsToRescue.getChildren().forEach(cat => {
@@ -722,11 +743,11 @@ class Level1 extends Phaser.Scene {
         });
     }
 
-    buyWin() {
+    buyWin(cost) {
         if (this.gameOver) return;
-        if (this.love < 0) return;
+        if (this.love < cost) return;
 
-        this.love -= 0;
+        this.love -= cost;
         this.updateUpgradeUI();
         this.win();
     }
