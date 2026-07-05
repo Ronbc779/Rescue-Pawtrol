@@ -252,7 +252,10 @@ class Level3 extends Phaser.Scene {
       fontSize: '15px', color: '#ffffff', fontStyle: 'bold'
     }).setOrigin(0.5).setScrollFactor(0).setDepth(22);
 
-    continueBtn.on('pointerdown', () => this.scene.start('WinScreen'));
+    continueBtn.on('pointerdown', () => {
+      this.registry.set('catsTreated', this.savedCount);
+      this.scene.start('WinScreen');
+    });
     continueBtn.on('pointerover', () => continueBtn.setFillStyle(0x42a5f5, 1));
     continueBtn.on('pointerout', () => continueBtn.setFillStyle(0x2196f3, 1));
 
