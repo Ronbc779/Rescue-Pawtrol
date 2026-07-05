@@ -367,26 +367,18 @@ class Level1 extends Phaser.Scene {
             this.physics.add.existing(AOE, true);
             AOE.body.setCircle(RADIUS);
 
-            this.sound.play('pickup');
+            this.sound.play('explosion', { volume: 0.6 });
 
-            let loopCount = 0;
-            AOE.on('animationrepeat', (animation) => {
-                if (animation.key === 'explosion_start') {
-                    loopCount++;
-                    
-                    if (loopCount < 3) {
-                        this.sound.play('explosion', { volume: 0.4 });
-                    } else {
-                        AOE.anims.play('explosion_loop');
-                    }
+            AOE.anims.play('explosion_start');
+            AOE.once('animationcomplete', (animation) => {
+                if (animation.key === 'explosion_start' && AOE.active) {
+                    AOE.anims.play('explosion_loop');
                 }
             });
 
-            AOE.anims.play('explosion_start');
-
-            this.time.delayedCall(400, () => {
-                if (AOE && AOE.active) {
-                    AOE.anims.play('explosion_loop');
+            AOE.on('animationrepeat', (animation) => {
+                if (animation.key === 'explosion_loop') {
+                    this.sound.play('explosion', { volume: 0.3 });
                 }
             });
 
