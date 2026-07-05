@@ -23,17 +23,19 @@ class Tutorial extends Phaser.Scene {
                 title: 'LEVEL 2: DEFEND THE CAT',
                 lines: [
                     '-  Move mouse to aim the shield',
-                    '-  Block bullets, rocks, nets',
-                    '-  Let medkits through. 10 needed to win',
-                    '-  One bad hit reaching the cat = game over'
+                    '-  Block bullets, rocks, and illness before they reach the cat',
+                    '-  Survive all 3 waves to win',
+                    '-  Pick a free upgrade between waves',
+                    '-  Running out of HP = game over'
                 ]
             },
             Level3: {
                 title: 'LEVEL 3: VET TRIAGE',
                 lines: [
                     '- Click a cat, then click its matching station',
-                    '- 75 seconds, gets faster over time',
-                    '- Treat 12 cats to win'
+                    '- 60 seconds, and cats arrive faster over time',
+                    '- Treat 30 cats to win',
+                    '- A wrong match costs you 3 seconds'
                 ]
             }
         };
