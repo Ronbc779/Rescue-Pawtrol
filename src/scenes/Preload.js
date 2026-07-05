@@ -29,7 +29,11 @@ class Preload extends Phaser.Scene {
         this.load.image('sand_rock', 'src/assets/sand_rock.png');
 
         this.load.audio('pickup', 'src/assets/audio/pickup.mp3');
+        this.load.audio('explosion', 'src/assets/audio/explosion.mp3');
+        this.load.audio('upgrade', 'src/assets/audio/upgrade.mp3');
         this.load.audio('bg1', 'src/assets/audio/bg1.mp3');
+        this.load.audio('bg2', 'src/assets/audio/bg2.mp3');
+        this.load.audio('bg3', 'src/assets/audio/bg3.mp3');
         this.load.audio('deposit', 'src/assets/audio/deposit.mp3');
         this.load.audio('win', 'src/assets/audio/win.mp3');
         this.load.audio('lose', 'src/assets/audio/lose.mp3');
@@ -40,6 +44,8 @@ class Preload extends Phaser.Scene {
         this.load.audio('car', 'src/assets/audio/car.mp3');
         this.load.audio('electric', 'src/assets/audio/electric.mp3');
         this.load.audio('wind', 'src/assets/audio/wind.mp3');
+        this.load.audio('correct', 'src/assets/audio/correct.mp3');
+        this.load.audio('wrong', 'src/assets/audio/wrong.mp3');
     }
     create(){
         this.scene.start('Menu');

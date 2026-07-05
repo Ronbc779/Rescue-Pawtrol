@@ -3,7 +3,7 @@ const config = {
     width: 800,
     height: 600,
     backgroundColor: '#1a1a2e',
-    scene: [Preload, Menu, Tutorial, Level1, Level2, Level3],
+    scene: [Preload, Menu, Tutorial, Level1, Level2, Level3, WinScreen],
     physics: {
         default: 'arcade',
         arcade: {

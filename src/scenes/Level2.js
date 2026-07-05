@@ -65,6 +65,12 @@ class Level2 extends Phaser.Scene {
         this.physics.add.overlap(this.badProjectiles, this.cat, this.onHit, null, this);
 
         this.startWave();
+        this.bgMusic = this.sound.add('bg2', { loop: true, volume: 0.4 });
+        this.bgMusic.play();
+
+        this.events.on('shutdown', () => {
+        this.bgMusic.stop();
+        });
 
     }
     update() {

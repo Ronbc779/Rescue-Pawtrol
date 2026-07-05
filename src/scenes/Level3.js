@@ -10,7 +10,7 @@ class Level3 extends Phaser.Scene {
     this.gameOver = false;
     this.savedCount = 0;
     this.targetSaves = 30;
-    this.timeRemaining = 75;
+    this.timeRemaining = 60;
     this.selectedCat = null;
 
     this.needTypes = ['bandage', 'medicine', 'food'];
@@ -56,6 +56,13 @@ class Level3 extends Phaser.Scene {
     this.spawnWaitingCat();
 
     this.startTimers();
+
+    this.bgMusic = this.sound.add('bg3', { loop: true, volume: 0.4 });
+    this.bgMusic.play();
+
+    this.events.on('shutdown', () => {
+      this.bgMusic.stop();
+    });
   }
 
   update() {
@@ -68,8 +75,10 @@ class Level3 extends Phaser.Scene {
     const cat = this.selectedCat;
 
     if (cat.needType === station.needType) {
+      this.sound.play('correct', { volume: 0.5});
       this.saveCat(cat);
     } else {
+      this.sound.play('wrong', { volume: 0.5});
       this.wrongMatch(station);
     }
 
@@ -211,6 +220,7 @@ class Level3 extends Phaser.Scene {
   endRound(won) {
     if (this.gameOver) return;
     this.gameOver = true;
+    this.sound.play('win', { volume: 0.5});
 
     if (this.countdownEvent) this.countdownEvent.remove();
     if (this.spawnEvent) this.spawnEvent.remove();
@@ -234,7 +244,19 @@ class Level3 extends Phaser.Scene {
       }).setOrigin(0.5).setDepth(21);
     }
 
-    this.add.text(400, 420, 'Press R to try again', {
+    const continueBtn = this.add.rectangle(400, 390, 220, 50, 0x2196f3, 1)
+      .setScrollFactor(0).setDepth(21).setInteractive({ useHandCursor: true });
+    continueBtn.setStrokeStyle(3, 0xffffff, 1);
+
+    this.add.text(400, 390, 'Yipee', {
+      fontSize: '15px', color: '#ffffff', fontStyle: 'bold'
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(22);
+
+    continueBtn.on('pointerdown', () => this.scene.start('WinScreen'));
+    continueBtn.on('pointerover', () => continueBtn.setFillStyle(0x42a5f5, 1));
+    continueBtn.on('pointerout', () => continueBtn.setFillStyle(0x2196f3, 1));
+
+    this.add.text(400, 450, 'Press R to try again', {
       fontSize: '18px', color: '#aaaaaa'
     }).setOrigin(0.5).setDepth(21);
 
