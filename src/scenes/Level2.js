@@ -180,10 +180,6 @@ class Level2 extends Phaser.Scene {
             proj.setScale(visualScale);
 
             this.physics.add.existing(proj);
-
-            // Derive the hitbox from the sprite's real frame size instead of
-            // assuming a fixed 256x256 texture, so it stays centered and
-            // correctly sized no matter what the source image dimensions are.
             const nativeW = proj.width;
             const nativeH = proj.height;
             const scaledW = nativeW * visualScale;
@@ -398,8 +394,8 @@ class Level2 extends Phaser.Scene {
             fontSize: '16px', color: '#00ff99'
         }).setOrigin(0.5).setDepth(41);
 
-        this.add.text(400, 330, 'They deserve to be protected as well.', {
-            fontSize: '8px', color: '#00ff99'
+        this.add.text(400, 300, 'They deserve to be protected as well.', {
+            fontSize: '16px', color: '#00ff99'
         }).setOrigin(0.5).setDepth(41);
 
         const continueBtn = this.add.rectangle(400, 350, 240, 55, 0x2196f3, 1)
