@@ -4,9 +4,9 @@ class Level2 extends Phaser.Scene {
     }
     init() {
         this.waveIndex = 0;
-        this.waveDurations = [20, 30, 45];
+        this.waveDurations = [20, 30, 40];
         this.waveSpawnDelays = [1200, 900, 600];
-        this.waveSpeeds = [180, 230, 300];
+        this.waveSpeeds = [180, 230, 280];
 
         this.catHP = 1;
         this.maxCatHP = 1;
