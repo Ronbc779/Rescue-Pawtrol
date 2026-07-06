@@ -315,11 +315,11 @@ class Level2 extends Phaser.Scene {
 
         const overlay = this.add.rectangle(400, 300, 800, 600, 0x000000, 0.85).setDepth(30);
 
-        this.add.text(400, 120, `Wave ${this.waveIndex} Complete!`, {
+        const titleText = this.add.text(400, 120, `Wave ${this.waveIndex} Complete!`, {
             fontSize: '32px', color: '#ffdd57', fontStyle: 'bold'
         }).setOrigin(0.5).setDepth(31);
 
-        this.add.text(400, 170, 'Choose ONE free upgrade:', {
+        const subtitleText = this.add.text(400, 170, 'Choose ONE free upgrade:', {
             fontSize: '18px', color: '#ffffff'
         }).setOrigin(0.5).setDepth(31);
 
