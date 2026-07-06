@@ -35,6 +35,7 @@ class Level1 extends Phaser.Scene {
         this.enemiesSlowed = false;
         this.revealActive = false;
 
+        this.hudLayout = [];
 
         this.createUpgradePanel();
 
@@ -42,6 +43,7 @@ class Level1 extends Phaser.Scene {
         this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
         this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
         this.cameras.main.setZoom(2);
+        this.applyHUDZoomCompensation();
         this.physics.world.setBounds(0, 0, this.worldWidth, this.worldHeight);
 
         this.anims.create({ key: 'walk_up', frames: this.anims.generateFrameNumbers('cat_walk_up', { start: 0, end: 3 }), frameRate: 8, repeat: -1 });
@@ -236,9 +238,10 @@ class Level1 extends Phaser.Scene {
         const maxCarry = this.canCarryTwo ? 2 : 1;
         if (this.carriedCats.length >= maxCarry) return;
 
-        cat.disableBody(true, true);
+        const textureKey = cat.texture.key;
+        this.catsToRescue.remove(cat, false, true);
 
-        const carried = this.add.sprite(0, 0, cat.texture.key);
+        const carried = this.add.sprite(0, 0, textureKey);
         carried.setScale(0.7);
         this.carriedCats.push(carried);
         this.sound.play('pickup');
@@ -573,7 +576,7 @@ class Level1 extends Phaser.Scene {
         panelY += 45;
         this.upgradeButtons.carry = this.makeUpgradeButton(panelX, panelY, 'Carry 2', 25, () => this.buyCarryTwo(25));
         panelY += 45;
-        this.upgradeButtons.zoom = this.makeUpgradeButton(panelX, panelY, 'Zoom Out', 20, () => this.buyZoomOut(20));
+        this.upgradeButtons.zoom = this.makeUpgradeButton(panelX, panelY, 'Zoom Out', 10, () => this.buyZoomOut(20));
         panelY += 55;
 
         this.upgradeButtons.shield = this.makeUpgradeButton(panelX, panelY, 'Shield 5s', 10, () => this.activateShield(10));
@@ -591,18 +594,22 @@ class Level1 extends Phaser.Scene {
         this.loveText = this.add.text(800 - 160, 60, `💗 Love: 0`, {
             fontSize: '16px', color: '#ff66aa', fontStyle: 'bold'
         }).setScrollFactor(0).setDepth(100);
+        this.hudLayout.push({ obj: this.loveText, x: 800 - 160, y: 60 });
 
         this.shelterLevelText = this.add.text(800 - 160, 80, `Shelter Lv.1 — 0/5`, {
             fontSize: '13px', color: '#ffffff'
         }).setScrollFactor(0).setDepth(100);
+        this.hudLayout.push({ obj: this.shelterLevelText, x: 800 - 160, y: 80 });
 
         this.toggleBtn = this.add.rectangle(800 - 30, 30, 50, 40, 0x333333, 0.95)
             .setScrollFactor(0).setDepth(102).setInteractive({ useHandCursor: true });
         this.toggleBtn.setStrokeStyle(2, 0xffffff, 1);
+        this.hudLayout.push({ obj: this.toggleBtn, x: 800 - 30, y: 30 });
 
         this.toggleText = this.add.text(800 - 30, 30, '☰', {
             fontSize: '22px', color: '#ffffff'
         }).setOrigin(0.5).setScrollFactor(0).setDepth(103);
+        this.hudLayout.push({ obj: this.toggleText, x: 800 - 30, y: 30 });
 
         this.toggleBtn.on('pointerdown', () => this.toggleUpgradePanel());
     }
@@ -615,6 +622,9 @@ class Level1 extends Phaser.Scene {
         const TEXT = this.add.text(x, y, `${label}\n(${cost} 💗)`, {
             fontSize: '11px', color: '#ffffff', align: 'center'
         }).setOrigin(0.5).setScrollFactor(0).setDepth(101);
+
+        this.hudLayout.push({ obj: BTN, x, y });
+        this.hudLayout.push({ obj: TEXT, x, y });
 
         BTN.on('pointerdown', () => {
             onClick()
@@ -676,6 +686,7 @@ class Level1 extends Phaser.Scene {
         this.zoomBought = true;
         this.sound.play('buy');
         this.cameras.main.setZoom(1.0);
+        this.applyHUDZoomCompensation();
         this.updateUpgradeUI();
         this.upgradeButtons.zoom.BTN.setFillStyle(0x888888, 0.9);
     }
@@ -787,13 +798,30 @@ class Level1 extends Phaser.Scene {
         continueBtn.on('pointerover', () => continueBtn.setFillStyle(0x42a5f5, 1));
         continueBtn.on('pointerout', () => continueBtn.setFillStyle(0x2196f3, 1));
 
-        this.add.text(400, 450, 'Or press R to replay this level', {
+        this.add.text(400, 425, 'Or press R to replay this level', {
             fontSize: '13px', color: '#aaaaaa'
         }).setOrigin(0.5).setScrollFactor(0).setDepth(21);
 
         this.input.keyboard.once('keydown-R', () => {
             this.gameOver = false;
             this.scene.restart();
+        });
+    }
+
+    applyHUDZoomCompensation() {
+        const cam = this.cameras.main;
+        const zoom = cam.zoom;
+        const centerX = cam.width / 2;
+        const centerY = cam.height / 2;
+
+        this.hudLayout.forEach(({ obj, x, y, baseScale }) => {
+            obj.setPosition(
+                centerX + (x - centerX) / zoom,
+                centerY + (y - centerY) / zoom
+            );
+            if (obj.setScale) {
+                obj.setScale((baseScale || 1) / zoom);
+            }
         });
     }
 
