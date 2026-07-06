@@ -386,7 +386,7 @@ class Level2 extends Phaser.Scene {
 
     winGame() {
         this.gameOver = true;
-        this.sound.play('win');
+        this.sound.play('win', {volume: 0.5});
 
         this.add.rectangle(400, 300, 800, 600, 0x000000, 0.8).setDepth(40);
 
@@ -425,7 +425,7 @@ class Level2 extends Phaser.Scene {
 
     loseGame() {
         this.gameOver = true;
-        this.sound.play('lose');
+        this.sound.play('lose', {volume: 0.3});
 
         this.badProjectiles.clear(true, true);
         if (this.waveCountdown) this.waveCountdown.remove();
