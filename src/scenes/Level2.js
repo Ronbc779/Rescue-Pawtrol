@@ -343,7 +343,7 @@ class Level2 extends Phaser.Scene {
                 }
             },
             {
-                label: '⏩ Faster Timer',
+                label: 'Faster Timer',
                 desc: `-10 seconds from Wave ${this.waveIndex + 1}`,
                 action: () => {
                     this.waveTimerReduction += 10;
