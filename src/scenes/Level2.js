@@ -352,7 +352,7 @@ class Level2 extends Phaser.Scene {
             }
         ];
 
-        this.upgradesObjects = [overlay];
+        this.upgradesObjects = [overlay, titleText, subtitleText];
 
         upgrades.forEach((upgrade, i) => {
             const btnY = 260 + i * 100;
