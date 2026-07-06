@@ -23,7 +23,7 @@ class Level1 extends Phaser.Scene {
         );
 
         this.shelterCapacity = 0;
-        this.shelterCapacityMax = 5;
+        this.shelterCapacityMax = 3;
         this.shelterLevel = 1;
         this.love = 0;
 
@@ -85,7 +85,7 @@ class Level1 extends Phaser.Scene {
         });
 
         this.catsToRescue = this.physics.add.staticGroup();
-        this.spawnCats(5);
+        this.spawnCats(3);
         this.carriedCats = [];
         this.physics.add.overlap(
             this.player,
@@ -540,7 +540,7 @@ class Level1 extends Phaser.Scene {
         this.shelterLevel++;
         this.shelterCapacityMax += 3;
 
-        const loveEarned = 10 + (this.shelterLevel - 2) * 5;
+        const loveEarned = 15 + (this.shelterLevel - 2) * 10;
         this.love += loveEarned;
 
         this.showLevelUpPopup(loveEarned);
