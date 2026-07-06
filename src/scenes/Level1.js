@@ -41,7 +41,7 @@ class Level1 extends Phaser.Scene {
         
         this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
         this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
-        this.cameras.main.setZoom(1);
+        this.cameras.main.setZoom(2);
         this.physics.world.setBounds(0, 0, this.worldWidth, this.worldHeight);
 
         this.anims.create({ key: 'walk_up', frames: this.anims.generateFrameNumbers('cat_walk_up', { start: 0, end: 3 }), frameRate: 8, repeat: -1 });
@@ -407,8 +407,9 @@ class Level1 extends Phaser.Scene {
         const W = 160;
         const H = 100;
 
-        const dustZone = this.add.rectangle(X, Y, W, H, 0Xc2a878, 0.5);
-        dustZone.setStrokeStyle(2, 0x8a7350, 0.6);
+        const dustZone = this.add.sprite(X, Y, 'cloud');
+        dustZone.setDisplaySize(W, H);
+        dustZone.setAlpha(0.55);
 
         this.tweens.add({
             targets: dustZone,
