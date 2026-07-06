@@ -34,7 +34,7 @@ class WinScreen extends Phaser.Scene {
         }
 
         this.add.text(400, summaryY + 20,
-            'Real shelters rescue, defend, and treat animals like this every day.\nConsider adopting or volunteering at your local shelter. Treat strays the same way you would treat your pets, they deserve all the love and care as well.',
+            'Real shelters rescue, defend, and treat animals like this every day.\nConsider adopting or volunteering at your local shelter. \nTreat strays the same way you would treat your pets, they deserve all the love and care as well.',
             { fontSize: '13px', color: '#cccccc', align: 'center' }
         ).setOrigin(0.5);
 

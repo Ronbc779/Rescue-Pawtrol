@@ -107,13 +107,14 @@ class Level3 extends Phaser.Scene {
     const slot = this.findOpenSlot();
     if (!slot) return;
 
-    // Use injured cat sprite if loaded, otherwise a white circle
-    const catKeys = ['injured_cat1','injured_cat2','injured_cat3','injured_cat4'];
+    // Reuse the same cat sprites from Level 1 / Level 2
+    const catKeys = ['white_cat1','white_cat2','gray_cat1','gray_cat2','orange_cat1','orange_cat2'];
     const randomKey = Phaser.Utils.Array.GetRandom(catKeys);
 
     const cat = this.textures.exists(randomKey)
       ? this.add.sprite(slot.x, slot.y, randomKey)
       : this.add.circle(slot.x, slot.y, 18, 0xffffff);
+    cat.setScale(1.5);
 
     cat.setInteractive({ useHandCursor: true });
     cat.needType = needType;
@@ -180,6 +181,10 @@ class Level3 extends Phaser.Scene {
     if (this.selectedCat) {
       this.selectedCat.selectionRing.setStrokeStyle(3, 0xffffff, 0);
     }
+
+    if (this.timeRemaining <= 0) {
+      this.endRound(false);
+    }
   }
 
   startTimers() {
@@ -220,7 +225,7 @@ class Level3 extends Phaser.Scene {
   endRound(won) {
     if (this.gameOver) return;
     this.gameOver = true;
-    this.sound.play('win', { volume: 0.5});
+    this.sound.play(won ? 'win' : 'lose', { volume: 0.5});
 
     if (this.countdownEvent) this.countdownEvent.remove();
     if (this.spawnEvent) this.spawnEvent.remove();
@@ -248,13 +253,17 @@ class Level3 extends Phaser.Scene {
       .setScrollFactor(0).setDepth(21).setInteractive({ useHandCursor: true });
     continueBtn.setStrokeStyle(3, 0xffffff, 1);
 
-    this.add.text(400, 390, 'Yipee', {
+    this.add.text(400, 390, won ? 'Yipee' : 'Continue', {
       fontSize: '15px', color: '#ffffff', fontStyle: 'bold'
     }).setOrigin(0.5).setScrollFactor(0).setDepth(22);
 
     continueBtn.on('pointerdown', () => {
-      this.registry.set('catsTreated', this.savedCount);
-      this.scene.start('WinScreen');
+      if (won) {
+        this.registry.set('catsTreated', this.savedCount);
+        this.scene.start('WinScreen');
+      } else {
+        this.scene.start('Menu');
+      }
     });
     continueBtn.on('pointerover', () => continueBtn.setFillStyle(0x42a5f5, 1));
     continueBtn.on('pointerout', () => continueBtn.setFillStyle(0x2196f3, 1));

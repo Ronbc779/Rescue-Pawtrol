@@ -15,7 +15,7 @@ class Menu extends Phaser.Scene {
         }).setOrigin(0.5);
 
         this.createButton(400, 320, 'PLAY', () => {
-            this.scene.start('Tutorial', { level: 'Level1' });
+            this.scene.start('Tutorial', { level: 'Level2' });
         });
 
         this.createButton(400, 400, 'EXIT', () => {

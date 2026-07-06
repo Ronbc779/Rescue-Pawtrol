@@ -165,7 +165,7 @@ class Level2 extends Phaser.Scene {
     spawnBadProjectile() {
         const { x, y, vx, vy } = this.getCardinalSpawnPoint();
 
-        const types = ['bullet', 'rock', 'net'];
+        const types = ['bullet', 'rock', 'virus'];
         const type = Phaser.Utils.Array.GetRandom(types);
         const size = 32;
 
@@ -180,16 +180,36 @@ class Level2 extends Phaser.Scene {
             proj.setScale(visualScale);
 
             this.physics.add.existing(proj);
-            const scaledSize = 256 * visualScale;
-            const radius = scaledSize / 2;
-            proj.body.setSize(scaledSize, scaledSize);
-            const offset = (256 - scaledSize) / 2;
-            proj.body.setOffset(offset, offset);
+
+            // Derive the hitbox from the sprite's real frame size instead of
+            // assuming a fixed 256x256 texture, so it stays centered and
+            // correctly sized no matter what the source image dimensions are.
+            const nativeW = proj.width;
+            const nativeH = proj.height;
+            const scaledW = nativeW * visualScale;
+            const scaledH = nativeH * visualScale;
+            proj.body.setSize(scaledW, scaledH);
+            proj.body.setOffset((nativeW - scaledW) / 2, (nativeH - scaledH) / 2);
+        } else if (type === 'virus') {
+            const virusTextures = ['virus1', 'virus2', 'virus3'];
+            const chosenTexture = Phaser.Utils.Array.GetRandom(virusTextures);
+
+            proj = this.add.sprite(x, y, chosenTexture);
+            const visualScale = 0.2;
+            proj.setScale(visualScale);
+
+            this.physics.add.existing(proj);
+
+            const nativeW = proj.width;
+            const nativeH = proj.height;
+            const scaledW = nativeW * visualScale;
+            const scaledH = nativeH * visualScale;
+            proj.body.setSize(scaledW, scaledH);
+            proj.body.setOffset((nativeW - scaledW) / 2, (nativeH - scaledH) / 2);
         }
         else{
-            let color, size;
-            if (type === 'bullet')  { color = 0x8a7350; size = 10; }
-            else  { color = 0x66ff99; size = 18; }
+            let color = 0x8a7350;
+            let size = 10;
 
             proj = this.add.circle(x, y, size, color);
             proj.setStrokeStyle(2, 0x000000, 0.5);
@@ -405,6 +425,7 @@ class Level2 extends Phaser.Scene {
 
     loseGame() {
         this.gameOver = true;
+        this.sound.play('lose');
 
         this.badProjectiles.clear(true, true);
         if (this.waveCountdown) this.waveCountdown.remove();

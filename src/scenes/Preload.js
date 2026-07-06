@@ -18,6 +18,7 @@ class Preload extends Phaser.Scene {
         this.load.image('gray_cat2', 'src/assets/gray_cat2.png');
         this.load.image('orange_cat1', 'src/assets/orange_cat1.png');
         this.load.image('orange_cat2', 'src/assets/orange_cat2.png');
+        this.load.image('cloud', 'src/assets/cloud.png');
 
         this.load.image('rescue_center', 'src/assets/rescue_center.png');
         this.load.image('red_car', 'src/assets/red_car.png');
@@ -27,6 +28,9 @@ class Preload extends Phaser.Scene {
         this.load.image('blue_rock', 'src/assets/blue_rock.png');
         this.load.image('moss_rock', 'src/assets/moss_rock.png');
         this.load.image('sand_rock', 'src/assets/sand_rock.png');
+        this.load.image('virus1', 'src/assets/virus1.png');
+        this.load.image('virus2', 'src/assets/virus2.png');
+        this.load.image('virus3', 'src/assets/virus3.png');
 
         this.load.audio('pickup', 'src/assets/audio/pickup.mp3');
         this.load.audio('explosion', 'src/assets/audio/explosion.mp3');
