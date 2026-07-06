@@ -253,7 +253,7 @@ class Level3 extends Phaser.Scene {
       .setScrollFactor(0).setDepth(21).setInteractive({ useHandCursor: true });
     continueBtn.setStrokeStyle(3, 0xffffff, 1);
 
-    this.add.text(400, 390, won ? 'Yipee' : 'Continue', {
+    this.add.text(400, 390, won ? 'Yipee' : 'Restart', {
       fontSize: '15px', color: '#ffffff', fontStyle: 'bold'
     }).setOrigin(0.5).setScrollFactor(0).setDepth(22);
 
@@ -262,11 +262,12 @@ class Level3 extends Phaser.Scene {
         this.registry.set('catsTreated', this.savedCount);
         this.scene.start('WinScreen');
       } else {
-        this.scene.start('Menu');
+        this.scene.restart();
       }
     });
     continueBtn.on('pointerover', () => continueBtn.setFillStyle(0x42a5f5, 1));
     continueBtn.on('pointerout', () => continueBtn.setFillStyle(0x2196f3, 1));
+
 
     this.add.text(400, 450, 'Press R to try again', {
       fontSize: '18px', color: '#aaaaaa'
